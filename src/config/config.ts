@@ -11,7 +11,7 @@ import { required, getServerConf } from '@trackplay/core/config'
  *
  * @module config
  */
-export const getConfig = () => ({
+export const getConf = () => ({
   ...getServerConf(),
   IGDB_CLIENT_ID: required('IGDB_CLIENT_ID'),
   IGDB_CLIENT_SECRET: required('IGDB_CLIENT_SECRET'),

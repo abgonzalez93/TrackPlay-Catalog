@@ -1,9 +1,9 @@
 import { getBaseURL } from '@trackplay/core/utils'
 import { logger } from '@trackplay/core/logger'
-import { getConfig } from '@config/index'
+import { getConf } from '@config/index'
 import app from './app'
 
-const { PORT, HOST } = getConfig()
+const { PORT, HOST } = getConf()
 
 /**
  * Entry point for the application.

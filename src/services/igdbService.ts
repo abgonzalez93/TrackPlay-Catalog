@@ -3,7 +3,7 @@ import { apiFetch, assertExists, assertValid } from '@trackplay/core/utils'
 import { HTTP_STATUS, IGDB } from '@trackplay/core/constants'
 import { buildIGDBQuery, postToIGDB } from '@utils/index'
 import { ApiError } from '@trackplay/core/errors'
-import { getConfig } from '@config/index'
+import { getConf } from '@config/index'
 
 let accessToken: string | null = null
 let tokenExpiresAt: number | null = null
@@ -28,7 +28,7 @@ export const igdbService = {
       return accessToken
     }
 
-    const { IGDB_CLIENT_ID, IGDB_CLIENT_SECRET } = getConfig()
+    const { IGDB_CLIENT_ID, IGDB_CLIENT_SECRET } = getConf()
 
     const params = new URLSearchParams({
       client_id: IGDB_CLIENT_ID,

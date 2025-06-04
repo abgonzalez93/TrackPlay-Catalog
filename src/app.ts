@@ -1,5 +1,5 @@
 import { applyMiddlewares, errorHandler } from '@trackplay/core/middlewares'
-import { getConfig } from '@config/index'
+import { getConf } from '@config/index'
 import { routes } from '@routes/index'
 import express from 'express'
 
@@ -10,7 +10,7 @@ import express from 'express'
  */
 const app = express()
 
-const { CORS_ORIGINS } = getConfig()
+const { CORS_ORIGINS } = getConf()
 
 applyMiddlewares(app, {
   cors: {
