@@ -1,4 +1,4 @@
-import { required, serverConf } from '@trackplay/core/config'
+import { required, getServerConf } from '@trackplay/core/config'
 
 /**
  * Environment configuration.
@@ -11,8 +11,8 @@ import { required, serverConf } from '@trackplay/core/config'
  *
  * @module config
  */
-export const config = {
-  ...serverConf,
+export const getConfig = () => ({
+  ...getServerConf(),
   IGDB_CLIENT_ID: required('IGDB_CLIENT_ID'),
   IGDB_CLIENT_SECRET: required('IGDB_CLIENT_SECRET'),
-}
+})

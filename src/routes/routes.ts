@@ -8,5 +8,5 @@ import { Express } from 'express'
  * @module routes
  */
 export const routes = (app: Express): void => {
-  app.use('/', igdbRoutes)
+  app.use('/games', igdbRoutes)
 }

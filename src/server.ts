@@ -1,7 +1,9 @@
 import { getBaseURL } from '@trackplay/core/utils'
 import { logger } from '@trackplay/core/logger'
-import { config } from '@config/index'
+import { getConfig } from '@config/index'
 import app from './app'
+
+const { PORT, HOST } = getConfig()
 
 /**
  * Entry point for the application.
@@ -9,6 +11,6 @@ import app from './app'
  *
  * @module server
  */
-app.listen(config.PORT, config.HOST, () => {
+app.listen(PORT, HOST, () => {
   logger.info(`🚀 Server running at ${getBaseURL()}`)
 })

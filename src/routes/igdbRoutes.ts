@@ -8,5 +8,5 @@ import { Router } from 'express'
  */
 export const igdbRoutes = Router()
 
-igdbRoutes.get('/search', igdbController.search)
-igdbRoutes.get('/games/:id', igdbController.getByIgdbId)
+igdbRoutes.post('/search', igdbController.search)
+igdbRoutes.get('/:id', igdbController.getByIgdbId)
