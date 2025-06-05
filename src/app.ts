@@ -9,7 +9,6 @@ import express from 'express'
  * @module app
  */
 const app = express()
-
 const { CORS_ORIGINS } = getConf()
 
 applyMiddlewares(app, {

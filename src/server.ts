@@ -4,6 +4,7 @@ import { getConf } from '@config/index'
 import app from './app'
 
 const { PORT, HOST } = getConf()
+const log = logger()
 
 /**
  * Entry point for the application.
@@ -12,5 +13,5 @@ const { PORT, HOST } = getConf()
  * @module server
  */
 app.listen(PORT, HOST, () => {
-  logger.info(`🚀 Server running at ${getBaseURL()}`)
+  log.info(`🚀 Server running at ${getBaseURL()}`)
 })
