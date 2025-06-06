@@ -1,5 +1,4 @@
 import { apiFetch } from '@trackplay/core/utils'
-import { IGDB } from '@trackplay/core/constants'
 import { getConf } from '@config/index'
 
 /**
@@ -11,10 +10,10 @@ import { getConf } from '@config/index'
  * @throws AxiosError if the request fails
  * @private
  */
-export const postToIGDB = async <T = unknown>(query: string, token: string): Promise<T> => {
-  const { IGDB_CLIENT_ID } = getConf()
+export const postToIGDB = async <T>(query: string, token: string): Promise<T> => {
+  const { IGDB_API_URL, IGDB_CLIENT_ID } = getConf()
 
-  return await apiFetch.post<T>(`${IGDB.API_URL}/games`, {
+  return await apiFetch.post<T>(`${IGDB_API_URL}/games`, {
     body: query,
     headers: {
       'Client-ID': IGDB_CLIENT_ID,

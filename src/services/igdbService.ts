@@ -1,7 +1,7 @@
 import { IGDBGameSchema, IGDBGame, IGDBGameFilters, IGDBToken, IGDBTokenSchema } from '@trackplay/core/schemas'
 import { apiFetch, assertExists, assertValid } from '@trackplay/core/utils'
-import { HTTP_STATUS, IGDB } from '@trackplay/core/constants'
 import { buildIGDBQuery, postToIGDB } from '@utils/index'
+import { HTTP_STATUS } from '@trackplay/core/constants'
 import { ApiError } from '@trackplay/core/errors'
 import { getConf } from '@config/index'
 
@@ -28,7 +28,7 @@ export const igdbService = {
       return accessToken
     }
 
-    const { IGDB_CLIENT_ID, IGDB_CLIENT_SECRET } = getConf()
+    const { IGDB_TOKEN_URL, IGDB_CLIENT_ID, IGDB_CLIENT_SECRET } = getConf()
 
     const params = new URLSearchParams({
       client_id: IGDB_CLIENT_ID,
@@ -37,7 +37,7 @@ export const igdbService = {
     })
 
     try {
-      const data = await apiFetch.post<IGDBToken>(IGDB.TOKEN_URL, {
+      const data = await apiFetch.post<IGDBToken>(IGDB_TOKEN_URL, {
         body: params,
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -91,7 +91,7 @@ export const igdbService = {
   async getGameById(igdbId: number): Promise<IGDBGame> {
     try {
       const token = await igdbService.getAccessToken()
-      const query = buildIGDBQuery({ where: `id = ${igdbId}`, limit: 1 })
+      const query = buildIGDBQuery({ where: `id = ${igdbId}` })
       const games = await postToIGDB<IGDBGame[]>(query, token)
 
       const game = assertExists<IGDBGame>(games?.[0], `Game with ID ${igdbId} not found`)

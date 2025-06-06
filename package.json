@@ -13,21 +13,21 @@
     "madge": "madge --circular src/"
   },
   "dependencies": {
-    "@trackplay/core": "^1.0.12",
+    "@trackplay/core": "^1.0.13",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
     "express-rate-limit": "^7.5.0",
     "helmet": "^8.1.0",
     "winston": "^3.17.0",
-    "zod": "^3.25.51"
+    "zod": "^3.25.53"
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
     "@types/compression": "^1.8.0",
     "@types/cors": "^2.8.18",
     "@types/express": "^5.0.2",
-    "@types/node": "^22.15.29",
+    "@types/node": "^22.15.30",
     "barrelsby": "^2.8.1",
     "eslint": "^9.28.0",
     "eslint-config-prettier": "^10.1.5",
