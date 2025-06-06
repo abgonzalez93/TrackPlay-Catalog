@@ -1,17 +1,34 @@
-import { getBaseURL } from '@trackplay/core/utils'
-import { logger } from '@trackplay/core/logger'
+import { createApp, startServer } from '@trackplay/core/server'
+import { MiddlewareOptions } from '@trackplay/core/middlewares'
+import { createLogger } from '@trackplay/core/logger'
 import { getConf } from '@config/index'
-import app from './app'
+import { routes } from '@routes/index'
 
-const { PORT, HOST } = getConf()
-const log = logger()
+const { IS_DEVELOPMENT, HOST, PORT, CORS_ORIGINS } = getConf()
 
-/**
- * Entry point for the application.
- * Starts the HTTP server and logs startup info.
- *
- * @module server
- */
-app.listen(PORT, HOST, () => {
-  log.info(`🚀 Server running at ${getBaseURL()}`)
+createLogger({
+  isDevelopment: IS_DEVELOPMENT,
+  label: 'TrackPlay-IGDB',
+  level: 'info',
+})
+
+const middlewares: MiddlewareOptions = {
+  cors: {
+    origin: CORS_ORIGINS.split(','),
+    credentials: true,
+  },
+  errorHandler: {
+    isDevelopment: IS_DEVELOPMENT,
+  },
+}
+
+const app = createApp({
+  routes,
+  middlewares,
+})
+
+startServer(app, {
+  protocol: IS_DEVELOPMENT ? 'http' : 'https',
+  host: HOST,
+  port: PORT,
 })

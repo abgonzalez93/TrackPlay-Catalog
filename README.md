@@ -1,4 +1,4 @@
-# 🎮 TrackPlay - IGDB Microservice
+# 🎮 TrackPlay - Servicio de IGDB
 
 Este microservicio se encarga de interactuar con la API pública de IGDB para obtener información sobre videojuegos (búsquedas, detalles, filtros, etc.). Forma parte de la arquitectura distribuida de TrackPlay y es consumido por el backend principal mediante HTTP.
 
