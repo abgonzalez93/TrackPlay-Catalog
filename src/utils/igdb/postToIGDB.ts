@@ -1,5 +1,7 @@
 import { apiFetch } from '@trackplay/core/utils'
-import { getConf } from '@config/index'
+import { getEnvConfig } from '@config/index'
+
+const { IGDB_API_URL, IGDB_CLIENT_ID } = getEnvConfig
 
 /**
  * Sends a POST request to the IGDB API using the given query and token.
@@ -11,8 +13,6 @@ import { getConf } from '@config/index'
  * @private
  */
 export const postToIGDB = async <T>(query: string, token: string): Promise<T> => {
-  const { IGDB_API_URL, IGDB_CLIENT_ID } = getConf()
-
   return await apiFetch.post<T>(`${IGDB_API_URL}/games`, {
     body: query,
     headers: {

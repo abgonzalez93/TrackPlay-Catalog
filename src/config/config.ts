@@ -1,20 +1,19 @@
-import { required, getServerConf } from '@trackplay/core/config'
+import { createEnv } from '@t3-oss/env-core'
+import { z } from 'zod'
 
-/**
- * Environment configuration.
- *
- * Centralized access to all environment variables used in the application,
- * including runtime flags and required external service credentials.
- *
- * Each variable is either loaded directly from `process.env`, has a default fallback,
- * or is enforced as required using the `required` function.
- *
- * @module config
- */
-export const getConf = () => ({
-  ...getServerConf(),
-  IGDB_TOKEN_URL: required('IGDB_TOKEN_URL'),
-  IGDB_API_URL: required('IGDB_API_URL'),
-  IGDB_CLIENT_ID: required('IGDB_CLIENT_ID'),
-  IGDB_CLIENT_SECRET: required('IGDB_CLIENT_SECRET'),
+export const getEnvConfig = createEnv({
+  server: {
+    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+
+    HOST: z.string().ip().or(z.literal('localhost')),
+    PORT: z.coerce.number(),
+    CORS_ORIGINS: z.string().min(1),
+
+    IGDB_TOKEN_URL: z.string().url(),
+    IGDB_API_URL: z.string().url(),
+    IGDB_CLIENT_ID: z.string().min(1),
+    IGDB_CLIENT_SECRET: z.string().min(1),
+  },
+  runtimeEnv: process.env,
+  emptyStringAsUndefined: true,
 })

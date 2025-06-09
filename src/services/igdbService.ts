@@ -3,10 +3,12 @@ import { apiFetch, assertExists, assertValid } from '@trackplay/core/utils'
 import { buildIGDBQuery, postToIGDB } from '@utils/index'
 import { HTTP_STATUS } from '@trackplay/core/constants'
 import { ApiError } from '@trackplay/core/errors'
-import { getConf } from '@config/index'
+import { getEnvConfig } from '@config/index'
 
 let accessToken: string | null = null
 let tokenExpiresAt: number | null = null
+
+const { IGDB_TOKEN_URL, IGDB_CLIENT_ID, IGDB_CLIENT_SECRET } = getEnvConfig
 
 /**
  * Service for authenticating and retrieving game data from IGDB.
@@ -27,8 +29,6 @@ export const igdbService = {
     if (accessToken && tokenExpiresAt && now < tokenExpiresAt) {
       return accessToken
     }
-
-    const { IGDB_TOKEN_URL, IGDB_CLIENT_ID, IGDB_CLIENT_SECRET } = getConf()
 
     const params = new URLSearchParams({
       client_id: IGDB_CLIENT_ID,
