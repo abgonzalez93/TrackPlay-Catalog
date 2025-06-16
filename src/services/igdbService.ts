@@ -1,8 +1,7 @@
 import { IGDBGameSchema, IGDBGame, IGDBGameFilters, IGDBToken, IGDBTokenSchema } from '@trackplay/core/schemas'
-import { apiFetch, assertExists, assertValid } from '@trackplay/core/utils'
+import { BadRequestError, NotFoundError, TrackPlayError, UnauthorizedError } from '@trackplay/core/errors'
+import { apiFetch, parseOrThrow } from '@trackplay/core/utils'
 import { buildIGDBQuery, postToIGDB } from '@utils/index'
-import { HTTP_STATUS } from '@trackplay/core/constants'
-import { ApiError } from '@trackplay/core/errors'
 import { getEnvConfig } from '@config/index'
 
 let accessToken: string | null = null
@@ -12,8 +11,6 @@ const { IGDB_TOKEN_URL, IGDB_CLIENT_ID, IGDB_CLIENT_SECRET } = getEnvConfig
 
 /**
  * Service for authenticating and retrieving game data from IGDB.
- *
- * @module services
  */
 export const igdbService = {
   /**
@@ -21,7 +18,7 @@ export const igdbService = {
    * If a cached token is still valid, it is reused.
    *
    * @returns A valid bearer token for IGDB requests
-   * @throws ApiError if the token cannot be obtained
+   * @throws UnauthorizedError if the token cannot be obtained
    */
   async getAccessToken(): Promise<string> {
     const now = Date.now()
@@ -44,14 +41,14 @@ export const igdbService = {
         },
       })
 
-      const token = assertValid<IGDBToken>(IGDBTokenSchema, data, 'Invalid IGDB token response')
+      const token = parseOrThrow<IGDBToken>(IGDBTokenSchema, data, 'Invalid IGDB token response')
 
       accessToken = token.access_token
       tokenExpiresAt = now + data.expires_in * 1000
 
       return accessToken
     } catch (error: unknown) {
-      throw new ApiError('IGDB authentication failed', HTTP_STATUS.UNAUTHORIZED, error)
+      throw new UnauthorizedError('IGDB authentication failed', error)
     }
   },
 
@@ -64,7 +61,7 @@ export const igdbService = {
    *
    * @param filters - Filtering and sorting options to apply to the IGDB API query.
    * @returns A validated array of `IGDBGame` objects.
-   * @throws ApiError - If the API request fails or the response is invalid.
+   * @throws BadRequestError - If the API request fails or the response is invalid.
    */
   async searchGames(filters: IGDBGameFilters): Promise<IGDBGame[]> {
     try {
@@ -72,9 +69,10 @@ export const igdbService = {
       const query = buildIGDBQuery(filters)
       const games = await postToIGDB<IGDBGame[]>(query, token)
 
-      return assertValid<IGDBGame[]>(IGDBGameSchema.array(), games, 'Invalid IGDB response')
+      return parseOrThrow<IGDBGame[]>(IGDBGameSchema.array(), games, 'Invalid IGDB response')
     } catch (error: unknown) {
-      throw new ApiError('Error searching games', HTTP_STATUS.BAD_GATEWAY, error)
+      if (error instanceof TrackPlayError) throw error
+      throw new BadRequestError('Error searching games', error)
     }
   },
 
@@ -86,19 +84,19 @@ export const igdbService = {
    *
    * @param igdbId - The numeric IGDB ID of the game to retrieve.
    * @returns A validated `IGDBGame` object.
-   * @throws ApiError - If the game is not found or the response is invalid.
+   * @throws BadRequestError - If the game is not found or the response is invalid.
    */
   async getGameById(igdbId: number): Promise<IGDBGame> {
     try {
-      const token = await igdbService.getAccessToken()
+      const accessToken = await igdbService.getAccessToken()
       const query = buildIGDBQuery({ where: `id = ${igdbId}` })
-      const games = await postToIGDB<IGDBGame[]>(query, token)
+      const [game] = await postToIGDB<IGDBGame[]>(query, accessToken)
+      if (!game) throw new NotFoundError(`Game with ID ${igdbId} not found`)
 
-      const game = assertExists<IGDBGame>(games?.[0], `Game with ID ${igdbId} not found`)
-
-      return assertValid<IGDBGame>(IGDBGameSchema, game, 'Invalid game structure')
+      return parseOrThrow<IGDBGame>(IGDBGameSchema, game, 'Invalid game structure')
     } catch (error: unknown) {
-      throw new ApiError('Error fetching game by ID', HTTP_STATUS.BAD_GATEWAY, error)
+      if (error instanceof TrackPlayError) throw error
+      throw new BadRequestError('Error fetching game by ID', error)
     }
   },
 }

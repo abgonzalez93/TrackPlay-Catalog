@@ -3,8 +3,6 @@ import { Router } from 'express'
 
 /**
  * Express router for game endpoints.
- *
- * @module routes
  */
 export const igdbRoutes = Router()
 

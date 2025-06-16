@@ -1,12 +1,12 @@
-import { IGDBGameFiltersSchema, IGDBGameFilters, IGDBGame } from '@trackplay/core/schemas'
-import { assertValid, assertExists } from '@trackplay/core/utils'
+import { IGDBGameFiltersSchema, IGDBGameFilters, IGDBIdSchema, IGDBId } from '@trackplay/core/schemas'
+import { HTTP_STATUS } from '@trackplay/core/constants'
+import { NotFoundError } from '@trackplay/core/errors'
+import { parseOrThrow } from '@trackplay/core/utils'
 import { igdbService } from '@services/index'
 import { Request, Response } from 'express'
 
 /**
  * Controller for handling routes related to games.
- *
- * @module controllers
  */
 export const igdbController = {
   /**
@@ -17,9 +17,9 @@ export const igdbController = {
    * @param res - Express response object
    */
   search: async (req: Request, res: Response): Promise<void> => {
-    const dto = assertValid<IGDBGameFilters>(IGDBGameFiltersSchema, req.query)
+    const dto = parseOrThrow<IGDBGameFilters>(IGDBGameFiltersSchema, req.query)
     const games = await igdbService.searchGames(dto)
-    res.json(games)
+    res.status(HTTP_STATUS.OK).json(games)
   },
 
   /**
@@ -30,9 +30,9 @@ export const igdbController = {
    * @param res - Express response object
    */
   getByIgdbId: async (req: Request, res: Response): Promise<void> => {
-    const igdbId = Number(req.params.id)
+    const igdbId = parseOrThrow<IGDBId>(IGDBIdSchema, req.params.id)
     const game = await igdbService.getGameById(igdbId)
-    assertExists<IGDBGame>(game, 'Game not found')
-    res.json(game)
+    if (!game) throw new NotFoundError('Game not found')
+    res.status(HTTP_STATUS.OK).json(game)
   },
 }

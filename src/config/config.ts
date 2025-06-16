@@ -1,18 +1,24 @@
+import {
+  NodeEnvSchema,
+  IpAddressSchema,
+  PortSchema,
+  NonEmptyStringSchema,
+  UrlStringSchema,
+} from '@trackplay/core/schemas'
 import { createEnv } from '@t3-oss/env-core'
-import { z } from 'zod'
 
 export const getEnvConfig = createEnv({
   server: {
-    NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+    NODE_ENV: NodeEnvSchema,
 
-    HOST: z.string().ip().or(z.literal('localhost')),
-    PORT: z.coerce.number(),
-    CORS_ORIGINS: z.string().min(1),
+    HOST: IpAddressSchema,
+    PORT: PortSchema,
+    CORS_ORIGINS: NonEmptyStringSchema,
 
-    IGDB_TOKEN_URL: z.string().url(),
-    IGDB_API_URL: z.string().url(),
-    IGDB_CLIENT_ID: z.string().min(1),
-    IGDB_CLIENT_SECRET: z.string().min(1),
+    IGDB_TOKEN_URL: UrlStringSchema,
+    IGDB_API_URL: UrlStringSchema,
+    IGDB_CLIENT_ID: NonEmptyStringSchema,
+    IGDB_CLIENT_SECRET: NonEmptyStringSchema,
   },
   runtimeEnv: process.env,
   emptyStringAsUndefined: true,

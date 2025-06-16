@@ -10,8 +10,6 @@ type BuildQueryOptions = IGDBGameFilters & {
  *
  * @param filters - The filtering, sorting and pagination options
  * @returns A string query compatible with IGDB API
- *
- * @module utils/igdb
  */
 export const buildIGDBQuery = (filters: BuildQueryOptions): string => {
   const {

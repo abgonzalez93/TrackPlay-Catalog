@@ -26,5 +26,5 @@ Este microservicio se encarga de interactuar con la API pública de IGDB para ob
 
 - Toda respuesta de IGDB se valida y adapta antes de exponerla al backend.
 - No se exponen credenciales directamente.
-- Todos los errores se canalizan por ApiError.
+- Todos los errores se canalizan por TrackPlayError.
 - El logger centralizado sigue el formato de Winston compartido en @trackplay/core.
