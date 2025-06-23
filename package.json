@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "@t3-oss/env-core": "^0.13.8",
-    "@trackplay/core": "^1.0.58",
+    "@trackplay/core": "^1.0.61",
     "compression": "^1.8.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
