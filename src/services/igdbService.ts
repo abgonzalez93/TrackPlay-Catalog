@@ -1,4 +1,4 @@
-import { IGDBGameSchema, IGDBGame, IGDBGameFilters, IGDBToken, IGDBTokenSchema } from '@trackplay/core/schemas'
+import { IGDBGameSchema, IGDBGame, IGDBGameFilters, IGDBTokenSchema, IGDBToken } from '@trackplay/core/schemas'
 import { BadRequestError, NotFoundError, TrackPlayError, UnauthorizedError } from '@trackplay/core/errors'
 import { apiFetch, parseOrThrow } from '@trackplay/core/utils'
 import { buildIGDBQuery, postToIGDB } from '@utils/index'
@@ -8,6 +8,8 @@ let accessToken: string | null = null
 let tokenExpiresAt: number | null = null
 
 const { IGDB_TOKEN_URL, IGDB_CLIENT_ID, IGDB_CLIENT_SECRET } = getEnvConfig
+
+const path = 'igdb.services.igdbService'
 
 /**
  * Service for authenticating and retrieving game data from IGDB.
@@ -39,14 +41,14 @@ export const igdbService = {
         },
       })
 
-      const token = parseOrThrow<IGDBToken>(IGDBTokenSchema, data, 'IGDB token response is not in a valid format')
+      const token = parseOrThrow(IGDBTokenSchema, data, `${path}.token_invalid_format`)
 
       accessToken = token.access_token
       tokenExpiresAt = now + data.expires_in * 1000
 
       return accessToken
     } catch (error: unknown) {
-      throw new UnauthorizedError('Unable to authenticate with IGDB', error)
+      throw new UnauthorizedError(`${path}.auth_failed`, error)
     }
   },
 
@@ -67,16 +69,12 @@ export const igdbService = {
       const query = buildIGDBQuery(filters)
 
       const games = await postToIGDB<IGDBGame[]>(query, token)
-      const parsedGames = parseOrThrow<IGDBGame[]>(
-        IGDBGameSchema.array(),
-        games,
-        'IGDB game list response is not in a valid format',
-      )
+      const parsedGames = parseOrThrow(IGDBGameSchema.array(), games, `${path}.games_invalid_format`)
 
       return parsedGames
     } catch (error: unknown) {
       if (error instanceof TrackPlayError) throw error
-      throw new BadRequestError('Failed to search games from IGDB', error)
+      throw new BadRequestError(`${path}.games_fetch_failed`, error)
     }
   },
 
@@ -96,13 +94,13 @@ export const igdbService = {
       const query = buildIGDBQuery({ where: `id = ${igdbId}` })
 
       const [game] = await postToIGDB<IGDBGame[]>(query, accessToken)
-      if (!game) throw new NotFoundError('No game found with the provided IGDB ID')
+      if (!game) throw new NotFoundError(`${path}.game_not_found`)
 
-      const parsedGame = parseOrThrow<IGDBGame>(IGDBGameSchema, game, 'IGDB game response is not in a valid format')
+      const parsedGame = parseOrThrow(IGDBGameSchema, game, `${path}.game_invalid_format`)
       return parsedGame
     } catch (error: unknown) {
       if (error instanceof TrackPlayError) throw error
-      throw new BadRequestError('Failed to fetch game from IGDB', error)
+      throw new BadRequestError(`${path}.game_fetch_failed`, error)
     }
   },
 }
