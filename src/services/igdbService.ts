@@ -1,8 +1,9 @@
 import { IGDBGameSchema, IGDBGame, IGDBGameFilters, IGDBTokenSchema, IGDBToken } from '@trackplay/core/schemas'
 import { BadRequestError, NotFoundError, TrackPlayError, UnauthorizedError } from '@trackplay/core/errors'
+import { buildIGDBQuery, BuildQueryOptions } from '@utils/index'
 import { apiFetch, parseOrThrow } from '@trackplay/core/utils'
-import { buildIGDBQuery, postToIGDB } from '@utils/index'
 import { getEnvConfig } from '@config/index'
+import { igdbClient } from '@clients/index'
 
 let accessToken: string | null = null
 let tokenExpiresAt: number | null = null
@@ -22,7 +23,7 @@ export const igdbService = {
    * @returns A valid bearer token for IGDB requests
    * @throws UnauthorizedError if the token cannot be obtained
    */
-  async getAccessToken(): Promise<string> {
+  getAccessToken: async (): Promise<string> => {
     const now = Date.now()
 
     if (accessToken && tokenExpiresAt && now < tokenExpiresAt) return accessToken
@@ -48,7 +49,20 @@ export const igdbService = {
 
       return accessToken
     } catch (error: unknown) {
+      if (error instanceof TrackPlayError) throw error
       throw new UnauthorizedError(`${path}.auth_failed`, error)
+    }
+  },
+
+  fetchGames: async (filters: BuildQueryOptions): Promise<IGDBGame[]> => {
+    try {
+      const query = buildIGDBQuery(filters)
+      const games = await igdbClient.request<IGDBGame[]>('games', query)
+      const parsedGames = parseOrThrow(IGDBGameSchema.array(), games, `${path}.games_invalid_format`)
+      return parsedGames
+    } catch (error: unknown) {
+      if (error instanceof TrackPlayError) throw error
+      throw new BadRequestError(`${path}.games_fetch_failed`, error)
     }
   },
 
@@ -63,20 +77,7 @@ export const igdbService = {
    * @returns A validated array of `IGDBGame` objects.
    * @throws BadRequestError - If the API request fails or the response is invalid.
    */
-  async searchGames(filters: IGDBGameFilters): Promise<IGDBGame[]> {
-    try {
-      const token = await igdbService.getAccessToken()
-      const query = buildIGDBQuery(filters)
-
-      const games = await postToIGDB<IGDBGame[]>(query, token)
-      const parsedGames = parseOrThrow(IGDBGameSchema.array(), games, `${path}.games_invalid_format`)
-
-      return parsedGames
-    } catch (error: unknown) {
-      if (error instanceof TrackPlayError) throw error
-      throw new BadRequestError(`${path}.games_fetch_failed`, error)
-    }
-  },
+  searchGames: async (filters: IGDBGameFilters): Promise<IGDBGame[]> => await igdbService.fetchGames(filters),
 
   /**
    * Fetches and validates a single game by its IGDB numeric ID.
@@ -88,19 +89,9 @@ export const igdbService = {
    * @returns A validated `IGDBGame` object.
    * @throws BadRequestError - If the game is not found or the response is invalid.
    */
-  async getGameById(igdbId: number): Promise<IGDBGame> {
-    try {
-      const accessToken = await igdbService.getAccessToken()
-      const query = buildIGDBQuery({ where: `id = ${igdbId}` })
-
-      const [game] = await postToIGDB<IGDBGame[]>(query, accessToken)
-      if (!game) throw new NotFoundError(`${path}.game_not_found`)
-
-      const parsedGame = parseOrThrow(IGDBGameSchema, game, `${path}.game_invalid_format`)
-      return parsedGame
-    } catch (error: unknown) {
-      if (error instanceof TrackPlayError) throw error
-      throw new BadRequestError(`${path}.game_fetch_failed`, error)
-    }
+  getGameById: async (igdbId: number): Promise<IGDBGame> => {
+    const [game] = await igdbService.fetchGames({ where: `id = ${igdbId}` })
+    if (!game) throw new NotFoundError(`${path}.game_not_found`)
+    return parseOrThrow(IGDBGameSchema, game, `${path}.game_invalid_format`)
   },
 }

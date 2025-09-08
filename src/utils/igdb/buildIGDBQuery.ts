@@ -1,7 +1,7 @@
 import { IGDBGameFilters } from '@trackplay/core/schemas'
 import { IGDB } from '@trackplay/core/constants'
 
-type BuildQueryOptions = IGDBGameFilters & {
+export type BuildQueryOptions = IGDBGameFilters & {
   where?: string
 }
 
