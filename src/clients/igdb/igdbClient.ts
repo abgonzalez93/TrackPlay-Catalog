@@ -1,5 +1,5 @@
+import { igdbAuthService } from '@services/index'
 import { apiFetch } from '@trackplay/core/utils'
-import { igdbService } from '@services/index'
 import { getEnvConfig } from '@config/index'
 
 const { IGDB_API_URL, IGDB_CLIENT_ID } = getEnvConfig
@@ -25,7 +25,7 @@ export const igdbClient = {
    * @returns The raw response data parsed as type `T`.
    */
   request: async <T>(endpoint: string, query: string): Promise<T> => {
-    const accessToken = await igdbService.getAccessToken()
+    const accessToken = await igdbAuthService.getAccessToken()
     return await apiFetch.post<T>(`${IGDB_API_URL}/${endpoint}`, {
       body: query,
       headers: {

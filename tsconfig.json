@@ -10,8 +10,12 @@
     "paths": {
       "@clients/*": ["clients/*"],
       "@config/*": ["config/*"],
+      "@constants/*": ["constants/*"],
       "@controllers/*": ["controllers/*"],
+      "@mappers/*": ["mappers/*"],
+      "@providers/*": ["providers/*"],
       "@routes/*": ["routes/*"],
+      "@schemas/*": ["schemas/*"],
       "@services/*": ["services/*"],
       "@utils/*": ["utils/*"]
     },

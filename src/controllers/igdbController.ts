@@ -1,8 +1,10 @@
-import { IGDBGameFiltersSchema, IGDBIdSchema } from '@trackplay/core/schemas'
+import { GameFiltersSchema, GameIdSchema } from '@trackplay/core/schemas'
 import { HTTP_STATUS } from '@trackplay/core/constants'
-import { parseOrThrow } from '@trackplay/core/utils'
-import { igdbService } from '@services/index'
+import { validateSchema } from '@trackplay/core/utils'
+import { igdbProvider } from '@providers/index'
 import { Request, Response } from 'express'
+
+const path = 'igdb.controllers.igdbController'
 
 /**
  * Controller for handling routes related to games.
@@ -16,8 +18,8 @@ export const igdbController = {
    * @param res - Express response object
    */
   search: async (req: Request, res: Response): Promise<void> => {
-    const filters = parseOrThrow(IGDBGameFiltersSchema, req.query)
-    const games = await igdbService.searchGames(filters)
+    const filters = validateSchema(GameFiltersSchema, req.query, `${path}.invalid_filters`)
+    const games = await igdbProvider.searchGames(filters)
     res.status(HTTP_STATUS.OK).json(games)
   },
 
@@ -29,8 +31,8 @@ export const igdbController = {
    * @param res - Express response object
    */
   getByIgdbId: async (req: Request, res: Response): Promise<void> => {
-    const id = parseOrThrow(IGDBIdSchema, req.params.id)
-    const game = await igdbService.getGameById(id)
+    const id = validateSchema(GameIdSchema, req.params.id, `${path}.invalid_id`)
+    const game = await igdbProvider.getGameById(id)
     res.status(HTTP_STATUS.OK).json(game)
   },
 }

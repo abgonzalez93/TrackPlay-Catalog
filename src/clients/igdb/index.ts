@@ -1,1 +1,1 @@
-export * from './igdb'
+export * from './igdbClient'

@@ -1,9 +1,17 @@
-import { IGDBGameFilters } from '@trackplay/core/schemas'
-import { IGDB } from '@trackplay/core/constants'
+import { IGDBGameFilters } from '@schemas/index'
+import { IGDB } from '@constants/index'
 
 export type BuildQueryOptions = IGDBGameFilters & {
   where?: string
 }
+
+/**
+ * Escapes double quotes in a string to ensure it does not break IGDB queries.
+ *
+ * @param val - The input string that may contain double quotes.
+ * @returns The string with all double quotes escaped.
+ */
+const escapeDoubleQuotes = (val: string): string => val.replace(/"/g, '\\"')
 
 /**
  * Builds a dynamic IGDB query string from provided filters or a custom condition.
@@ -25,43 +33,43 @@ export const buildIGDBQuery = (filters: BuildQueryOptions): string => {
     platforms,
     genres,
     themes,
+    filters: advancedFilters,
     where,
   } = filters
 
-  const queryParts: string[] = []
   const whereParts: string[] = []
 
-  queryParts.push(`fields ${IGDB.GAME_FIELDS.trim()};`)
+  const normalizedFilters = [
+    ...(minRating !== undefined ? [{ field: 'rating', operator: '>=', value: minRating }] : []),
+    ...(minAggregatedRating !== undefined
+      ? [{ field: 'aggregated_rating', operator: '>=', value: minAggregatedRating }]
+      : []),
+    ...(minFollows !== undefined ? [{ field: 'follows', operator: '>=', value: minFollows }] : []),
+    ...(minHypes !== undefined ? [{ field: 'hypes', operator: '>=', value: minHypes }] : []),
+    ...(platforms?.length ? [{ field: 'platforms', operator: '=', value: platforms }] : []),
+    ...(genres?.length ? [{ field: 'genres', operator: '=', value: genres }] : []),
+    ...(themes?.length ? [{ field: 'themes', operator: '=', value: themes }] : []),
+    ...(advancedFilters ?? []),
+  ]
 
-  if (q) {
-    if (sortBy) {
-      whereParts.push(`name ~ *"${q}"*`)
+  normalizedFilters.forEach(({ field, operator, value }) => {
+    if (Array.isArray(value)) {
+      whereParts.push(`${field} ${operator} (${value.join(',')})`)
+    } else if (typeof value === 'string') {
+      whereParts.push(`${field} ${operator} "${escapeDoubleQuotes(value)}"`)
     } else {
-      queryParts.push(`search "${q}";`)
+      whereParts.push(`${field} ${operator} ${value}`)
     }
-  }
+  })
 
-  if (minRating !== undefined) whereParts.push(`rating >= ${minRating}`)
-  if (minAggregatedRating !== undefined) whereParts.push(`aggregated_rating >= ${minAggregatedRating}`)
-  if (minFollows !== undefined) whereParts.push(`follows >= ${minFollows}`)
-  if (minHypes !== undefined) whereParts.push(`hypes >= ${minHypes}`)
-
-  if (platforms?.length) whereParts.push(`platforms = (${platforms.join(',')})`)
-  if (genres?.length) whereParts.push(`genres = (${genres.join(',')})`)
-  if (themes?.length) whereParts.push(`themes = (${themes.join(',')})`)
-
-  if (where) {
-    queryParts.push(`where ${where};`)
-  } else if (whereParts.length > 0) {
-    queryParts.push(`where ${whereParts.join(' & ')};`)
-  }
-
-  if (sortBy) {
-    queryParts.push(`sort ${sortBy} ${sortOrder};`)
-  }
-
-  queryParts.push(`limit ${limit};`)
-  queryParts.push(`offset ${offset};`)
-
-  return queryParts.join('\n')
+  return [
+    `fields ${IGDB.GAME_FIELDS.trim()};`,
+    q ? `search "${escapeDoubleQuotes(q)}";` : '',
+    where ? `where ${where};` : whereParts.length ? `where ${whereParts.join(' & ')};` : '',
+    sortBy ? `sort ${sortBy} ${sortOrder};` : '',
+    `limit ${limit};`,
+    `offset ${offset};`,
+  ]
+    .filter(Boolean)
+    .join('\n')
 }
