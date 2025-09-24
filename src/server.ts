@@ -10,7 +10,7 @@ const isDevelopment = NODE_ENV === 'development'
 const corsOrigins = CORS_ORIGINS.split(',')
 
 /**
- * Bootstraps the TrackPlay Auth service.
+ * Bootstraps the TrackPlay Catalog service.
  *
  * This function is responsible for:
  * - Initializing internationalization (i18n).
@@ -24,7 +24,7 @@ const corsOrigins = CORS_ORIGINS.split(',')
 const bootstrap = async () => {
   const logger = createLogger({
     isDevelopment: isDevelopment,
-    label: 'TrackPlay-IGDB',
+    label: 'TrackPlay-Catalog',
     level: 'info',
   })
 

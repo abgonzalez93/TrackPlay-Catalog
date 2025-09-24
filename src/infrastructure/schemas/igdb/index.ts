@@ -1,0 +1,6 @@
+export * from './IGDBCategory'
+export * from './IGDBConfig'
+export * from './IGDBGame'
+export * from './IGDBGameFilters'
+export * from './IGDBId'
+export * from './IGDBToken'

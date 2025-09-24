@@ -1,0 +1,5 @@
+export * from './authAdapter'
+export * from './categoryAdapter'
+export * from './gameAdapter'
+export * from './igdb/index'
+export * from './rawg/index'

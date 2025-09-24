@@ -1,5 +1,0 @@
-export * from './igdbAuthService'
-export * from './igdbGameService'
-export * from './igdbGenreService'
-export * from './igdbPlatformService'
-export * from './igdbThemeService'
