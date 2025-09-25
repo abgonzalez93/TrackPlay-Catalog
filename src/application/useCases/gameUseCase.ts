@@ -1,6 +1,6 @@
 import { Game, GameFilters, GameList, Id } from '@trackplay/core/schemas'
 import { NotFoundError } from '@trackplay/core/errors'
-import { gameAdapter } from '@adapters/index'
+import { GamePort } from '@trackplay/core/ports'
 
 const path = 'catalog.application.useCases.gameUseCase'
 
@@ -8,11 +8,12 @@ const path = 'catalog.application.useCases.gameUseCase'
  * Game UseCase
  *
  * Provides application-level operations for interacting with games
- * in a provider-agnostic way. This layer orchestrates calls to the
- * GameAdapter and ensures that the application only works with
- * domain-neutral `Game` entities.
+ * in a provider-agnostic way.
+ *
+ * This layer orchestrates calls to the {@link GamePort} and ensures
+ * that the application only works with domain-neutral `Game` entities.
  */
-export const gameUseCase = {
+export const gameUseCase = (gamePort: GamePort) => ({
   /**
    * Searches for games using the provided domain-level filters.
    *
@@ -20,7 +21,7 @@ export const gameUseCase = {
    * title, platform, genre, or rating constraints.
    * @returns {Promise<GameList>} A list of games matching the filters.
    */
-  searchGames: async (filters: GameFilters): Promise<GameList> => await gameAdapter.searchGames(filters),
+  searchGames: async (filters: GameFilters): Promise<GameList> => await gamePort.searchGames(filters),
 
   /**
    * Retrieves a single game by its domain-level identifier.
@@ -30,8 +31,8 @@ export const gameUseCase = {
    * @throws NotFoundError - If no game exists for the given identifier.
    */
   getGameById: async (id: Id): Promise<Game> => {
-    const game = await gameAdapter.getGameById(id)
+    const game = await gamePort.getGameById(id)
     if (!game) throw new NotFoundError(`${path}.game_not_found`)
     return game
   },
-}
+})

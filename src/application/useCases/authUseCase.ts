@@ -1,5 +1,8 @@
 import { ProviderToken } from '@trackplay/core/schemas'
 import { tokenService } from '@services/index'
+import { authAdapter } from '@adapters/index'
+
+const tokenServiceInstance = tokenService(authAdapter)
 
 /**
  * Authentication UseCase
@@ -17,5 +20,5 @@ export const authUseCase = {
    *
    * @returns {Promise<ProviderToken>} A valid provider token object.
    */
-  getAccessToken: async (): Promise<ProviderToken> => await tokenService.getValidToken(),
+  getAccessToken: async (): Promise<ProviderToken> => await tokenServiceInstance.getValidToken(),
 }

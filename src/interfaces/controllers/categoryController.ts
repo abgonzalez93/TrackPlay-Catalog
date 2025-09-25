@@ -1,6 +1,9 @@
 import { HTTP_STATUS } from '@trackplay/core/constants'
 import { categoryUseCase } from '@useCases/index'
+import { categoryAdapter } from '@adapters/index'
 import { Request, Response } from 'express'
+
+const categoryUseCaseInstance = categoryUseCase(categoryAdapter)
 
 /**
  * Controller for handling routes related to categories.
@@ -12,7 +15,7 @@ export const categoryController = {
    * Retrieves all available genres as domain-neutral categories.
    */
   getGenres: async (_req: Request, res: Response): Promise<void> => {
-    const genres = await categoryUseCase.getGenres()
+    const genres = await categoryUseCaseInstance.getGenres()
     res.status(HTTP_STATUS.OK).json(genres)
   },
 
@@ -22,7 +25,7 @@ export const categoryController = {
    * Retrieves all available platforms as domain-neutral categories.
    */
   getPlatforms: async (_req: Request, res: Response): Promise<void> => {
-    const platforms = await categoryUseCase.getPlatforms()
+    const platforms = await categoryUseCaseInstance.getPlatforms()
     res.status(HTTP_STATUS.OK).json(platforms)
   },
 
@@ -32,7 +35,7 @@ export const categoryController = {
    * Retrieves all available themes as domain-neutral categories.
    */
   getThemes: async (_req: Request, res: Response): Promise<void> => {
-    const themes = await categoryUseCase.getThemes()
+    const themes = await categoryUseCaseInstance.getThemes()
     res.status(HTTP_STATUS.OK).json(themes)
   },
 }

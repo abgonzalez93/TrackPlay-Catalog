@@ -2,9 +2,11 @@ import { GameFiltersSchema, IdSchema } from '@trackplay/core/schemas'
 import { HTTP_STATUS } from '@trackplay/core/constants'
 import { validateSchema } from '@trackplay/core/utils'
 import { gameUseCase } from '@useCases/index'
+import { gameAdapter } from '@adapters/index'
 import { Request, Response } from 'express'
 
 const path = 'catalog.interfaces.controllers.gameController'
+const gameUseCaseInstance = gameUseCase(gameAdapter)
 
 /**
  * Controller for handling routes related to games.
@@ -19,7 +21,7 @@ export const gameController = {
    */
   search: async (req: Request, res: Response): Promise<void> => {
     const filters = validateSchema(GameFiltersSchema, req.query, `${path}.invalid_filters`)
-    const games = await gameUseCase.searchGames(filters)
+    const games = await gameUseCaseInstance.searchGames(filters)
     res.status(HTTP_STATUS.OK).json(games)
   },
 
@@ -32,7 +34,7 @@ export const gameController = {
    */
   getById: async (req: Request, res: Response): Promise<void> => {
     const id = validateSchema(IdSchema, req.params.id, `${path}.invalid_id`)
-    const game = await gameUseCase.getGameById(id)
+    const game = await gameUseCaseInstance.getGameById(id)
     res.status(HTTP_STATUS.OK).json(game)
   },
 }
