@@ -5,7 +5,7 @@ import { z } from 'zod'
  */
 export const RAWGConfigSchema = z.object({
   type: z.literal('rawg'),
-  apiUrl: z.string().url(),
+  apiUrl: z.url(),
   apiKey: z.string().min(1),
 })
 
