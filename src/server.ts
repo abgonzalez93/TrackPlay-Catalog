@@ -1,59 +1,23 @@
-import { createApp, startServer } from '@trackplay/core/server'
-import { createI18n, initI18n } from '@trackplay/core/i18n'
-import { createLogger } from '@trackplay/core/logger'
+import { bootstrap } from '@trackplay/core/server'
 import { getEnvConfig } from '@config/index'
 import { routes } from '@routes/index'
 
-const { NODE_ENV, HOST, PORT, CORS_ORIGINS } = getEnvConfig
-
-const isDevelopment = NODE_ENV === 'development'
-const corsOrigins = CORS_ORIGINS.split(',')
-
 /**
- * Bootstraps the TrackPlay Catalog service.
+ * Entry point for the TrackPlay Catalog service.
  *
- * This function is responsible for:
- * - Initializing internationalization (i18n).
- * - Creating and configuring the logger.
- * - Establishing a connection with Redis.
- * - Creating the Express application with routes and middlewares.
- * - Starting the HTTP/HTTPS server.
+ * This file delegates the bootstrapping process to the shared {@link bootstrap}
+ * function provided by `@trackplay/core/server`, ensuring consistency across
+ * all TrackPlay services.
  *
- * @throws Will terminate the process if the server fails to start.
+ * Responsibilities:
+ * - Loads environment configuration via {@link getEnvConfig}.
+ * - Registers service-specific routes defined in {@link routes}.
+ * - Passes the service name ("TrackPlay-Catalog") for logging and monitoring.
+ * - Starts the HTTP/HTTPS server with the provided configuration.
+ *
  */
-const bootstrap = async () => {
-  const logger = createLogger({
-    isDevelopment: isDevelopment,
-    label: 'TrackPlay-Catalog',
-    level: 'info',
-  })
-
-  const i18n = createI18n()
-  await initI18n(i18n)
-
-  const app = createApp({
-    routes,
-    middlewareOptions: {
-      cors: {
-        origin: corsOrigins,
-        credentials: true,
-      },
-      errorHandler: {
-        isDevelopment: isDevelopment,
-      },
-    },
-    i18n,
-    logger,
-  })
-
-  startServer(app, logger, {
-    protocol: isDevelopment ? 'http' : 'https',
-    host: HOST,
-    port: PORT,
-  })
-}
-
-await bootstrap().catch((error) => {
-  console.error('❌ Failed to start server', error)
-  process.exit(1)
+await bootstrap({
+  serviceName: 'TrackPlay-Catalog',
+  routes,
+  env: getEnvConfig,
 })

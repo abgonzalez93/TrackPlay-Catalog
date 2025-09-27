@@ -1,1 +1,1 @@
-export * from './buildIGDBQuery'
+export * from './igdb/index'

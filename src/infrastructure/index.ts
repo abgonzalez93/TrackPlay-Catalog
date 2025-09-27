@@ -1,6 +1,7 @@
 export * from './adapters/index'
 export * from './config/index'
 export * from './constants/index'
+export * from './container/index'
 export * from './mappers/index'
 export * from './queries/index'
 export * from './schemas/index'

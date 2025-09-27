@@ -13,6 +13,7 @@
       "@adapters/*": ["infrastructure/adapters/*"],
       "@config/*": ["infrastructure/config/*"],
       "@constants/*": ["infrastructure/constants/*"],
+      "@container/*": ["infrastructure/container/*"],
       "@mappers/*": ["infrastructure/mappers/*"],
       "@queries/*": ["infrastructure/queries/*"],
       "@schemas/*": ["infrastructure/schemas/*"],

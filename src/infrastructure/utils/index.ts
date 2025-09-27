@@ -1,1 +1,1 @@
-export * from './executeQuery'
+export * from './fetchFromProvider'
