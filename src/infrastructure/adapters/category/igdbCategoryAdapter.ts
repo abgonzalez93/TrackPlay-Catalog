@@ -34,7 +34,7 @@ export const igdbCategoryAdapter = (authPort: AuthPort, apiUrl: string, clientId
       endpoint: 'genres',
       query,
       schema: IGDBCategoryListSchema,
-      mapper: (data) => data.map(toCategory),
+      mapper: (genres) => genres.map(toCategory),
       errorPath: path,
     }),
 
@@ -50,7 +50,7 @@ export const igdbCategoryAdapter = (authPort: AuthPort, apiUrl: string, clientId
       endpoint: 'platforms',
       query,
       schema: IGDBCategoryListSchema,
-      mapper: (data) => data.map(toCategory),
+      mapper: (platforms) => platforms.map(toCategory),
       errorPath: path,
     }),
 
@@ -66,7 +66,7 @@ export const igdbCategoryAdapter = (authPort: AuthPort, apiUrl: string, clientId
       endpoint: 'themes',
       query,
       schema: IGDBCategoryListSchema,
-      mapper: (data) => data.map(toCategory),
+      mapper: (themes) => themes.map(toCategory),
       errorPath: path,
     }),
 })

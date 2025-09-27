@@ -9,7 +9,7 @@ import { AuthPort } from '@trackplay/core/ports'
  * Defines the parameters required to perform a network request, including
  * provider-specific identifiers and optional HTTP method overrides.
  */
-export interface ExecuteQueryOptions {
+interface ExecuteQueryOptions {
   apiUrl: string
   endpoint: string
   query: string

@@ -12,8 +12,8 @@ importers:
         specifier: ^0.13.8
         version: 0.13.8(typescript@5.9.2)(zod@4.1.11)
       '@trackplay/core':
-        specifier: ^1.1.22
-        version: 1.1.22(typescript@5.9.2)
+        specifier: ^1.1.23
+        version: 1.1.23(typescript@5.9.2)
       compression:
         specifier: ^1.8.1
         version: 1.8.1
@@ -396,8 +396,8 @@ packages:
       zod:
         optional: true
 
-  '@trackplay/core@1.1.22':
-    resolution: {integrity: sha512-13ghefcYZZJJNbPihtwvk2+uDXldljNL1LNB6Y9SyLOrmbLxWzZQ5crF0zLnTko64C79E0sSXYm/dpjhzkxkSg==, tarball: https://npm.pkg.github.com/download/@trackplay/core/1.1.22/42dc8e235f2c13b37b1e91869ebe0ce9e1a2c2fd}
+  '@trackplay/core@1.1.23':
+    resolution: {integrity: sha512-OQWsrPUOCk/IY0NMokIat1nNPUBvn5dittupBHIalsKAMTbBp/aeapiZXY1d9hFOpVQ65lN2wtebkn4HkoHJMg==, tarball: https://npm.pkg.github.com/download/@trackplay/core/1.1.23/e89928685f00a5bdb453b0753d12f034fed69a88}
 
   '@ts-graphviz/adapter@2.0.6':
     resolution: {integrity: sha512-kJ10lIMSWMJkLkkCG5gt927SnGZcBuG0s0HHswGzcHTgvtUe7yk5/3zTEr0bafzsodsOq5Gi6FhQeV775nC35Q==}
@@ -2131,7 +2131,7 @@ snapshots:
       typescript: 5.9.2
       zod: 4.1.11
 
-  '@trackplay/core@1.1.22(typescript@5.9.2)':
+  '@trackplay/core@1.1.23(typescript@5.9.2)':
     dependencies:
       compression: 1.8.1
       cors: 2.8.5

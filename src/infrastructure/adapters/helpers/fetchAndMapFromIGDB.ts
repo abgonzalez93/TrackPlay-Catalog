@@ -25,7 +25,7 @@ interface FetchAndMapFromIGDBParams<TSchema extends ZodType, TResult = z.infer<T
  *
  * Responsibilities:
  * - Executes an authenticated provider request via {@link fetchFromProvider}.
- * - Validates the raw response using a {@link z.ZodSchema}.
+ * - Validates the raw response using a {@link z.ZodType}.
  * - Optionally maps validated data via a transformation function.
  *
  * Notes:
