@@ -86,7 +86,7 @@ const sendProviderRequest = async (providerToken: ProviderToken, options: Execut
     throw new BadRequestError(`${errorPath}.unsupported_method`, { method })
   } catch (error: unknown) {
     if (error instanceof TrackPlayError) throw error
-    throw new BadRequestError(`${errorPath}.fetch_failed`, error)
+    throw new BadRequestError({ key: `${errorPath}.fetch_failed`, variables: { endpoint } }, error)
   }
 }
 

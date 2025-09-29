@@ -1,10 +1,11 @@
 import { AuthPort, CategoryPort } from '@trackplay/core/ports'
+import { getTranslationPath } from '@trackplay/core/utils'
 import { IGDBCategoryListSchema } from '@schemas/index'
 import { fetchAndMapFromIGDB } from '../helpers/index'
 import { CategoryList } from '@trackplay/core/schemas'
 import { toCategory } from '@mappers/index'
 
-const path = 'catalog.infrastructure.adapters.igdb.categoryAdapter'
+const path = getTranslationPath(import.meta.url)
 const query = 'fields id,name,slug;'
 
 /**

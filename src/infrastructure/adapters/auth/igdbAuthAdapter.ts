@@ -1,11 +1,11 @@
+import { apiFetch, validateSchema, getTranslationPath } from '@trackplay/core/utils'
 import { TrackPlayError, UnauthorizedError } from '@trackplay/core/errors'
-import { apiFetch, validateSchema } from '@trackplay/core/utils'
 import { ProviderToken } from '@trackplay/core/schemas'
 import { toIGDBProviderToken } from '@mappers/index'
 import { IGDBTokenSchema } from '@schemas/index'
 import { AuthPort } from '@trackplay/core/ports'
 
-const path = 'catalog.infrastructure.adapters.igdbAuthAdapter'
+const path = getTranslationPath(import.meta.url)
 
 /**
  * IGDB Auth Adapter

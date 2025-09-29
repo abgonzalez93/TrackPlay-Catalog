@@ -21,7 +21,6 @@ let tokenExpiresAt: number | null = null
  * - Expiration is respected for bearer tokens via their `expiresAt` field.
  * - Non-bearer tokens (e.g., API keys) are treated as non-expiring.
  * - This service does not handle persistence beyond in-memory storage.
- *
  */
 export const tokenService = (authPort: AuthPort): TokenService => ({
   /**
@@ -29,16 +28,12 @@ export const tokenService = (authPort: AuthPort): TokenService => ({
    * Reuses cached tokens if valid; otherwise, fetches a new one.
    */
   getValidToken: async (): Promise<ProviderToken> => {
-    if (cachedToken && tokenExpiresAt && Date.now() < tokenExpiresAt) return cachedToken
+    if (cachedToken && cachedToken.type === 'apiKey') return cachedToken
+    if (Date.now() < cachedToken.expiresAt) return cachedToken
 
     const token = await authPort.requestToken()
     cachedToken = token
-
-    if (token.type === 'bearer' && token.expiresAt) {
-      tokenExpiresAt = token.expiresAt
-    } else {
-      tokenExpiresAt = null
-    }
+    tokenExpiresAt = token.type === 'bearer' ? token.expiresAt : null
 
     return token
   },

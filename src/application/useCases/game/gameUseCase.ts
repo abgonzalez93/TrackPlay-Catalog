@@ -1,9 +1,10 @@
 import { Game, GameFilters, GameList, Id } from '@trackplay/core/schemas'
+import { getTranslationPath } from '@trackplay/core/utils'
 import { NotFoundError } from '@trackplay/core/errors'
 import { GameUseCase } from './gameUseCase.interface'
 import { GameService } from '@services/index'
 
-const path = 'catalog.application.useCases.gameUseCase'
+const path = getTranslationPath(import.meta.url)
 
 /**
  * Game Use Case

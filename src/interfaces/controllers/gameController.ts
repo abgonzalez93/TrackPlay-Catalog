@@ -1,10 +1,11 @@
 import { GameFiltersSchema, IdSchema } from '@trackplay/core/schemas'
+import { getTranslationPath } from '@trackplay/core/utils'
 import { HTTP_STATUS } from '@trackplay/core/constants'
 import { validateSchema } from '@trackplay/core/utils'
 import { GameUseCase } from '@useCases/index'
 import { Request, Response } from 'express'
 
-const path = 'catalog.interfaces.controllers.gameController'
+const path = getTranslationPath(import.meta.url)
 
 /**
  * Game Controller

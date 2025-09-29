@@ -1,11 +1,12 @@
 import { Id, Game, GameList, GameFilters } from '@trackplay/core/schemas'
 import { IGDBGameListSchema, IGDBGameSchema } from '@schemas/index'
+import { getTranslationPath } from '@trackplay/core/utils'
 import { AuthPort, GamePort } from '@trackplay/core/ports'
 import { toGame, toIGDBFilters } from '@mappers/index'
 import { fetchAndMapFromIGDB } from '../helpers/index'
 import { buildIGDBQuery } from '@queries/index'
 
-const path = 'catalog.infrastructure.adapters.igdb.gameAdapter'
+const path = getTranslationPath(import.meta.url)
 const endpoint = 'games'
 
 /**
