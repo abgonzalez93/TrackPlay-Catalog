@@ -1,5 +1,5 @@
-import { IGDBConfigSchema } from './igdb/IGDBConfig'
-import { RAWGConfigSchema } from './rawg/RAWGConfig'
+import { IGDBConfigSchema } from '@schemas/igdb'
+import { RAWGConfigSchema } from '@schemas/rawg'
 import { z } from 'zod'
 
 /**
