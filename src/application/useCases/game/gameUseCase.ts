@@ -18,20 +18,25 @@ const path = getTranslationPath(import.meta.url)
  * - Handles error cases (e.g., when a game is not found).
  *
  */
-export const gameUseCase = (gameService: GameService): GameUseCase => ({
+export const gameUseCase = (gameService: GameService): GameUseCase => {
   /**
    * Searches for games based on the provided filters.
    * Delegates execution to the {@link GameService}.
    */
-  searchGames: async (filters: GameFilters): Promise<GameList> => await gameService.searchGames(filters),
+  const searchGames = async (filters: GameFilters): Promise<GameList> => await gameService.searchGames(filters)
 
   /**
    * Retrieves a game by its unique identifier.
    * Throws a {@link NotFoundError} if the game is not found.
    */
-  getGameById: async (id: Id): Promise<Game> => {
+  const getGameById = async (id: Id): Promise<Game> => {
     const game = await gameService.getGameById(id)
     if (!game) throw new NotFoundError(`${path}.game_not_found`)
     return game
-  },
-})
+  }
+
+  return {
+    searchGames,
+    getGameById,
+  }
+}

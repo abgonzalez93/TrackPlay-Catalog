@@ -22,7 +22,7 @@ let cachedToken: ProviderToken | null = null
  * - API keys are treated as non-expiring and never refreshed.
  * - This service does **not** persist tokens — all state is in-memory only.
  */
-export const tokenService = (authPort: AuthPort): TokenService => ({
+export const tokenService = (authPort: AuthPort): TokenService => {
   /**
    * Retrieves a valid authentication token.
    *
@@ -34,11 +34,15 @@ export const tokenService = (authPort: AuthPort): TokenService => ({
    *
    * @returns A valid {@link ProviderToken} for the current provider.
    */
-  getValidToken: async (): Promise<ProviderToken> => {
+  const getValidToken = async (): Promise<ProviderToken> => {
     const isApiKey = cachedToken?.type === 'apiKey'
     const isBearerValid = cachedToken?.type === 'bearer' && Date.now() < cachedToken.expiresAt
 
     if (!cachedToken || (!isApiKey && !isBearerValid)) cachedToken = await authPort.requestToken()
     return cachedToken
-  },
-})
+  }
+
+  return {
+    getValidToken,
+  }
+}

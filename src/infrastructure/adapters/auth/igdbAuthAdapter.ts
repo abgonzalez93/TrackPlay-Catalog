@@ -32,7 +32,7 @@ const path = getTranslationPath(import.meta.url)
  * @returns An {@link AuthPort} implementation for IGDB/Twitch authentication.
  *
  */
-export const igdbAuthAdapter = (clientId: string, clientSecret: string, tokenUrl: string): AuthPort => ({
+export const igdbAuthAdapter = (clientId: string, clientSecret: string, tokenUrl: string): AuthPort => {
   /**
    * Requests a new OAuth bearer token from IGDB/Twitch.
    *
@@ -40,7 +40,7 @@ export const igdbAuthAdapter = (clientId: string, clientSecret: string, tokenUrl
    * @throws {TrackPlayError} If schema validation or other application-level error occurs.
    * @returns A normalized {@link ProviderToken} containing the access token and expiration time.
    */
-  requestToken: async (): Promise<ProviderToken> => {
+  const requestToken = async (): Promise<ProviderToken> => {
     try {
       const raw = await apiFetch.post<unknown>(tokenUrl, {
         body: new URLSearchParams({
@@ -57,5 +57,9 @@ export const igdbAuthAdapter = (clientId: string, clientSecret: string, tokenUrl
       if (error instanceof TrackPlayError) throw error
       throw new UnauthorizedError(`${path}.auth_failed`, error)
     }
-  },
-})
+  }
+
+  return {
+    requestToken,
+  }
+}

@@ -23,7 +23,7 @@ const path = getTranslationPath(import.meta.url)
  * - This controller does not implement business logic; it only handles request/response orchestration.
  *
  */
-export const gameController = (gameUseCase: GameUseCase) => ({
+export const gameController = (gameUseCase: GameUseCase) => {
   /**
    * GET /games/search
    *
@@ -35,11 +35,11 @@ export const gameController = (gameUseCase: GameUseCase) => ({
    * @returns 200 OK with a JSON array of matching games.
    * @throws BadRequestError - If filters are invalid.
    */
-  search: async (req: Request, res: Response): Promise<void> => {
+  const search = async (req: Request, res: Response): Promise<void> => {
     const filters = validateSchema(GameFiltersSchema, req.query, `${path}.invalid_filters`)
     const games = await gameUseCase.searchGames(filters)
     res.status(HTTP_STATUS.OK).json(games)
-  },
+  }
 
   /**
    * GET /games/:id
@@ -53,9 +53,14 @@ export const gameController = (gameUseCase: GameUseCase) => ({
    * @throws NotFoundError - If no game is found for the provided ID.
    * @throws BadRequestError - If the ID format is invalid.
    */
-  getById: async (req: Request, res: Response): Promise<void> => {
+  const getById = async (req: Request, res: Response): Promise<void> => {
     const id = validateSchema(IdSchema, req.params.id, `${path}.invalid_id`)
     const game = await gameUseCase.getGameById(id)
     res.status(HTTP_STATUS.OK).json(game)
-  },
-})
+  }
+
+  return {
+    search,
+    getById,
+  }
+}

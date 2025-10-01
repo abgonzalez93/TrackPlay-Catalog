@@ -1,1 +1,1 @@
-export * from './fetchAndMapFromIGDB'
+export * from './withIGDBConfig'

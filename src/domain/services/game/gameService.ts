@@ -12,17 +12,22 @@ import { GamePort } from '@trackplay/core/ports'
  * - Handle scenarios such as missing entities or additional orchestration logic.
  *
  */
-export const gameService = (gamePort: GamePort): GameService => ({
+export const gameService = (gamePort: GamePort): GameService => {
   /**
    * Searches for games using the specified filters.
    * Delegates the call to the {@link GamePort}.
    */
-  searchGames: async (filters: GameFilters): Promise<GameList> => await gamePort.searchGames(filters),
+  const searchGames = async (filters: GameFilters): Promise<GameList> => await gamePort.searchGames(filters)
 
   /**
    * Retrieves a game by its unique identifier.
    * Delegates the call to the {@link GamePort}.
    * Returns `null` if no game is found.
    */
-  getGameById: async (id: Id): Promise<Game | null> => await gamePort.getGameById(id),
-})
+  const getGameById = async (id: Id): Promise<Game | null> => await gamePort.getGameById(id)
+
+  return {
+    searchGames,
+    getGameById,
+  }
+}

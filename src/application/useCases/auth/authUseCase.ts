@@ -16,12 +16,16 @@ import { TokenService } from '@services/index'
  * - Guarantees that consumers receive a valid {@link ProviderToken}.
  *
  */
-export const authUseCase = (tokenService: TokenService): AuthUseCase => ({
+export const authUseCase = (tokenService: TokenService): AuthUseCase => {
   /**
    * Retrieves a valid provider token for the current game provider.
    * Reuses cached tokens if valid, otherwise fetches a new one.
    */
-  getAccessToken: async (): Promise<ProviderToken> => {
+  const getAccessToken = async (): Promise<ProviderToken> => {
     return await tokenService.getValidToken()
-  },
-})
+  }
+
+  return {
+    getAccessToken,
+  }
+}

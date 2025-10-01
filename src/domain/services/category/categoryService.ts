@@ -15,19 +15,25 @@ import { CategoryPort } from '@trackplay/core/ports'
  * - Ensures a consistent contract for retrieving game categories.
  *
  */
-export const categoryService = (categoryPort: CategoryPort): CategoryService => ({
+export const categoryService = (categoryPort: CategoryPort): CategoryService => {
   /**
    * Retrieves all available game genres from the provider.
    */
-  getGenres: async (): Promise<CategoryList> => await categoryPort.getGenres(),
+  const getGenres = async (): Promise<CategoryList> => await categoryPort.getGenres()
 
   /**
    * Retrieves all available game platforms from the provider.
    */
-  getPlatforms: async (): Promise<CategoryList> => await categoryPort.getPlatforms(),
+  const getPlatforms = async (): Promise<CategoryList> => await categoryPort.getPlatforms()
 
   /**
    * Retrieves all available game themes from the provider.
    */
-  getThemes: async (): Promise<CategoryList> => await categoryPort.getThemes(),
-})
+  const getThemes = async (): Promise<CategoryList> => await categoryPort.getThemes()
+
+  return {
+    getGenres,
+    getPlatforms,
+    getThemes,
+  }
+}

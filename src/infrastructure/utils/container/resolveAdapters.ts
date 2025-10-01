@@ -8,7 +8,7 @@ import {
 } from '@adapters/index'
 import { AuthPort, CategoryPort, GamePort } from '@trackplay/core/ports'
 import { UnauthorizedError } from '@trackplay/core/errors'
-import { currentProviderConfig } from '@config/index'
+import { ProviderConfig } from '@schemas/index'
 
 /**
  * Mapping of all available provider adapters.
@@ -65,18 +65,24 @@ const assembleAdapters = (authAdapter: AuthPort, apiUrl: string, clientId?: stri
  * - Extensible: new providers can be integrated by adding additional `case` branches.
  * - Throws {@link UnauthorizedError} if the configured provider is unsupported.
  *
+ * @param {ProviderConfig} providerConfig
+ *   The configuration object describing the active external provider.
+ *   Its shape depends on the selected provider type:
+ *   - **IGDB**: `{ type: 'igdb'; apiUrl: string; tokenUrl: string; clientId: string; clientSecret: string }`
+ *   - **RAWG**: `{ type: 'rawg'; apiUrl: string; apiKey: string }`
+ *
  * @returns {AdaptersMap} The fully initialized set of provider adapters.
  */
-export const resolveAdapters = (): AdaptersMap => {
-  switch (currentProviderConfig.type) {
+export const resolveAdapters = (providerConfig: ProviderConfig): AdaptersMap => {
+  switch (providerConfig.type) {
     case 'igdb': {
-      const { tokenUrl, apiUrl, clientId, clientSecret } = currentProviderConfig
+      const { tokenUrl, apiUrl, clientId, clientSecret } = providerConfig
       const authAdapter = igdbAuthAdapter(clientId, clientSecret, tokenUrl)
       return assembleAdapters(authAdapter, apiUrl, clientId)
     }
 
     case 'rawg': {
-      const { apiUrl, apiKey } = currentProviderConfig
+      const { apiUrl, apiKey } = providerConfig
       const authAdapter = rawgAuthAdapter(apiKey)
       return assembleAdapters(authAdapter, apiUrl)
     }

@@ -1,6 +1,7 @@
 import { categoryService, gameService, tokenService } from '@services/index'
 import { authUseCase, categoryUseCase, gameUseCase } from '@useCases/index'
 import { categoryController, gameController } from '@controllers/index'
+import { currentProviderConfig } from '@config/index'
 import { resolveAdapters } from '@utils/index'
 
 // --------------------
@@ -10,7 +11,7 @@ const {
   authAdapter: authAdapterInstance,
   categoryAdapter: categoryAdapterInstance,
   gameAdapter: gameAdapterInstance,
-} = resolveAdapters()
+} = resolveAdapters(currentProviderConfig)
 
 // --------------------
 // Services

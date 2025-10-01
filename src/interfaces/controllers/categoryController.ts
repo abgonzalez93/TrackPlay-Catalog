@@ -19,7 +19,7 @@ import { Request, Response } from 'express'
  *   request/response orchestration.
  *
  */
-export const categoryController = (categoryUseCase: CategoryUseCase) => ({
+export const categoryController = (categoryUseCase: CategoryUseCase) => {
   /**
    * GET /categories/genres
    *
@@ -30,10 +30,10 @@ export const categoryController = (categoryUseCase: CategoryUseCase) => ({
    *
    * @returns 200 OK with a JSON array of genres.
    */
-  getGenres: async (_req: Request, res: Response): Promise<void> => {
+  const getGenres = async (_req: Request, res: Response): Promise<void> => {
     const genres = await categoryUseCase.getGenres()
     res.status(HTTP_STATUS.OK).json(genres)
-  },
+  }
 
   /**
    * GET /categories/platforms
@@ -44,10 +44,10 @@ export const categoryController = (categoryUseCase: CategoryUseCase) => ({
    * @param res - Express response object used to send JSON output.
    * @returns 200 OK with a JSON array of platforms.
    */
-  getPlatforms: async (_req: Request, res: Response): Promise<void> => {
+  const getPlatforms = async (_req: Request, res: Response): Promise<void> => {
     const platforms = await categoryUseCase.getPlatforms()
     res.status(HTTP_STATUS.OK).json(platforms)
-  },
+  }
 
   /**
    * GET /categories/themes
@@ -58,8 +58,14 @@ export const categoryController = (categoryUseCase: CategoryUseCase) => ({
    * @param res - Express response object used to send JSON output.
    * @returns 200 OK with a JSON array of themes.
    */
-  getThemes: async (_req: Request, res: Response): Promise<void> => {
+  const getThemes = async (_req: Request, res: Response): Promise<void> => {
     const themes = await categoryUseCase.getThemes()
     res.status(HTTP_STATUS.OK).json(themes)
-  },
-})
+  }
+
+  return {
+    getGenres,
+    getPlatforms,
+    getThemes,
+  }
+}

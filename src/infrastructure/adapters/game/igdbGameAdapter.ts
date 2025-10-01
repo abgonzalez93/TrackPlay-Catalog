@@ -3,7 +3,7 @@ import { IGDBGameListSchema, IGDBGameSchema } from '@schemas/index'
 import { getTranslationPath } from '@trackplay/core/utils'
 import { AuthPort, GamePort } from '@trackplay/core/ports'
 import { toGame, toIGDBFilters } from '@mappers/index'
-import { fetchAndMapFromIGDB } from '../helpers/index'
+import { withIGDBConfig } from '../helpers/index'
 import { buildIGDBQuery } from '@queries/index'
 
 const path = getTranslationPath(import.meta.url)
@@ -24,7 +24,9 @@ const endpoint = 'games'
  * - Returns `null` if a requested game is not found.
  * - Operates strictly within the infrastructure layer.
  */
-export const igdbGameAdapter = (authPort: AuthPort, apiUrl: string, clientId: string): GamePort => ({
+export const igdbGameAdapter = (authPort: AuthPort, apiUrl: string, clientId: string): GamePort => {
+  const igdb = withIGDBConfig(authPort, apiUrl, clientId, path)
+
   /**
    * Searches for games based on domain-level {@link GameFilters}.
    *
@@ -37,20 +39,17 @@ export const igdbGameAdapter = (authPort: AuthPort, apiUrl: string, clientId: st
    * @param filters - Domain-level filtering and sorting options.
    * @returns Promise resolving to a validated and mapped {@link GameList}.
    */
-  searchGames: (filters: GameFilters): Promise<GameList> => {
+  const searchGames = async (filters: GameFilters): Promise<GameList> => {
     const igdbFilters = toIGDBFilters(filters)
     const query = buildIGDBQuery(igdbFilters)
 
-    return fetchAndMapFromIGDB(authPort, {
-      apiUrl,
-      clientId,
+    return await igdb({
       endpoint,
       query,
       schema: IGDBGameListSchema,
       mapper: (games) => games.map(toGame),
-      errorPath: path,
     })
-  },
+  }
 
   /**
    * Retrieves a single game by its domain-level {@link Id}.
@@ -64,17 +63,19 @@ export const igdbGameAdapter = (authPort: AuthPort, apiUrl: string, clientId: st
    * @param id - Unique domain identifier of the game.
    * @returns Promise resolving to a mapped {@link Game} or `null` if not found.
    */
-  getGameById: async (id: Id): Promise<Game | null> => {
+  const getGameById = async (id: Id): Promise<Game | null> => {
     const query = buildIGDBQuery({ where: `id = ${id}` })
 
-    return await fetchAndMapFromIGDB(authPort, {
-      apiUrl,
-      clientId,
+    return await igdb({
       endpoint,
       query,
       schema: IGDBGameSchema,
       mapper: (game) => (game ? toGame(game) : null),
-      errorPath: path,
     })
-  },
-})
+  }
+
+  return {
+    searchGames,
+    getGameById,
+  }
+}

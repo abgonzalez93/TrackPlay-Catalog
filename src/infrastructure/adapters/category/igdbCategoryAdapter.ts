@@ -1,8 +1,8 @@
 import { AuthPort, CategoryPort } from '@trackplay/core/ports'
 import { getTranslationPath } from '@trackplay/core/utils'
 import { IGDBCategoryListSchema } from '@schemas/index'
-import { fetchAndMapFromIGDB } from '../helpers/index'
 import { CategoryList } from '@trackplay/core/schemas'
+import { withIGDBConfig } from '../helpers/index'
 import { toCategory } from '@mappers/index'
 
 const path = getTranslationPath(import.meta.url)
@@ -22,52 +22,53 @@ const query = 'fields id,name,slug;'
  * - Relies on {@link fetchAndMapFromIGDB} for shared fetch/validate/map logic.
  * - Operates at the infrastructure level, exposing only domain-safe data.
  */
-export const igdbCategoryAdapter = (authPort: AuthPort, apiUrl: string, clientId: string): CategoryPort => ({
+export const igdbCategoryAdapter = (authPort: AuthPort, apiUrl: string, clientId: string): CategoryPort => {
+  const igdb = withIGDBConfig(authPort, apiUrl, clientId, path)
+
   /**
    * Fetches and maps all genres from IGDB.
    *
    * @returns A {@link CategoryList} containing normalized genre entities.
    */
-  getGenres: (): Promise<CategoryList> =>
-    fetchAndMapFromIGDB(authPort, {
-      apiUrl,
-      clientId,
+  const getGenres = async (): Promise<CategoryList> => {
+    return await igdb({
       endpoint: 'genres',
       query,
       schema: IGDBCategoryListSchema,
       mapper: (genres) => genres.map(toCategory),
-      errorPath: path,
-    }),
-
+    })
+  }
   /**
    * Fetches and maps all platforms from IGDB.
    *
    * @returns A {@link CategoryList} containing normalized platform entities.
    */
-  getPlatforms: (): Promise<CategoryList> =>
-    fetchAndMapFromIGDB(authPort, {
-      apiUrl,
-      clientId,
+  const getPlatforms = async (): Promise<CategoryList> => {
+    return await igdb({
       endpoint: 'platforms',
       query,
       schema: IGDBCategoryListSchema,
       mapper: (platforms) => platforms.map(toCategory),
-      errorPath: path,
-    }),
+    })
+  }
 
   /**
    * Fetches and maps all themes from IGDB.
    *
    * @returns A {@link CategoryList} containing normalized theme entities.
    */
-  getThemes: (): Promise<CategoryList> =>
-    fetchAndMapFromIGDB(authPort, {
-      apiUrl,
-      clientId,
+  const getThemes = async (): Promise<CategoryList> => {
+    return await igdb({
       endpoint: 'themes',
       query,
       schema: IGDBCategoryListSchema,
       mapper: (themes) => themes.map(toCategory),
-      errorPath: path,
-    }),
-})
+    })
+  }
+
+  return {
+    getGenres,
+    getPlatforms,
+    getThemes,
+  }
+}

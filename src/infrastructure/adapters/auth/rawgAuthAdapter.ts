@@ -24,11 +24,15 @@ import { AuthPort } from '@trackplay/core/ports'
  * @returns An {@link AuthPort} implementation for RAWG authentication.
  *
  */
-export const rawgAuthAdapter = (apiKey: string): AuthPort => ({
+export const rawgAuthAdapter = (apiKey: string): AuthPort => {
   /**
    * Returns the configured RAWG API key wrapped in a {@link ProviderToken}.
    *
    * @returns A {@link ProviderToken} representing the RAWG API key.
    */
-  requestToken: async (): Promise<ProviderToken> => toRAWGProviderToken({ apiKey }),
-})
+  const requestToken = async (): Promise<ProviderToken> => toRAWGProviderToken({ apiKey })
+
+  return {
+    requestToken,
+  }
+}
