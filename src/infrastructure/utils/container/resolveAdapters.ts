@@ -6,38 +6,49 @@ import {
   igdbGameAdapter,
   rawgGameAdapter,
 } from '@adapters/index'
-import { AuthPort, CategoryPort, GamePort } from '@trackplay/core/ports'
+import { ProviderTokenPort, CategoryPort, GamePort } from '@trackplay/core/ports'
 import { UnauthorizedError } from '@trackplay/core/errors'
 import { ProviderConfig } from '@schemas/index'
 
 /**
- * Mapping of all available provider adapters.
+ * **Adapters Map**
  *
- * Defines the set of infrastructure-level adapter instances that implement
- * the corresponding ports for each domain entity. Each adapter is
- * responsible for integrating with an external game provider (e.g., IGDB, RAWG)
- * using provider-specific APIs and authentication mechanisms.
+ * Defines the structure of the adapter set for a given provider.
+ * Each adapter implements one of the application’s core ports:
+ * - {@link ProviderTokenPort}
+ * - {@link CategoryPort}
+ * - {@link GamePort}
  *
+ * These adapters serve as the infrastructure layer implementations,
+ * integrating directly with external provider APIs (e.g., IGDB, RAWG).
  */
 interface AdaptersMap {
-  authAdapter: AuthPort
+  authAdapter: ProviderTokenPort
   categoryAdapter: CategoryPort
   gameAdapter: GamePort
 }
 
 /**
- * Assembles the complete adapter set (Auth, Category, Game)
- * for the currently active provider.
+ * **Assemble Adapters**
  *
- * This function centralizes shared instantiation logic between providers,
- * using an existing {@link AuthPort} instance to initialize dependent adapters.
+ * Internal factory function that composes the complete set of adapters
+ * (Auth, Category, Game) for a specific external provider.
  *
- * @param {AuthPort} authAdapter The authentication adapter already initialized for the provider.
- * @param {string} apiUrl The base API URL of the external provider.
- * @param {string} [clientId] Optional client identifier required by some providers (e.g., IGDB).
- * @returns {AdaptersMap} A fully assembled adapter set including Auth, Category, and Game.
+ * It centralizes the instantiation logic shared between providers,
+ * ensuring that category and game adapters receive the same
+ * authenticated {@link ProviderTokenPort} instance.
+ *
+ * ### Responsibilities
+ * - Initialize dependent adapters (Category, Game) using the shared ProviderTokenPort.
+ * - Inject provider-specific configuration values (API URL, client ID, etc.).
+ * - Maintain a consistent contract across different providers.
+ *
+ * @param authAdapter - The already initialized authentication adapter for the provider.
+ * @param apiUrl - The base API URL for the provider.
+ * @param clientId - Optional client identifier (required by IGDB).
+ * @returns A complete {@link AdaptersMap} including all initialized adapters.
  */
-const assembleAdapters = (authAdapter: AuthPort, apiUrl: string, clientId?: string): AdaptersMap => {
+const assembleAdapters = (authAdapter: ProviderTokenPort, apiUrl: string, clientId?: string): AdaptersMap => {
   const categoryAdapter = clientId
     ? igdbCategoryAdapter(authAdapter, apiUrl, clientId)
     : rawgCategoryAdapter(authAdapter, apiUrl)
@@ -48,30 +59,41 @@ const assembleAdapters = (authAdapter: AuthPort, apiUrl: string, clientId?: stri
 }
 
 /**
- * Resolves and initializes all provider-specific adapters.
+ * **Resolve Adapters**
  *
- * Determines the current external game provider based on {@link currentProviderConfig}
- * and constructs the corresponding adapter instances (Auth, Category, Game).
+ * High-level factory that resolves and initializes all
+ * provider-specific adapters (Auth, Category, Game) based on the
+ * current {@link ProviderConfig}.
  *
- * Each adapter is automatically injected with its required configuration,
- * including API URLs, credentials, and authentication parameters.
+ * This function defines **how** the active external provider
+ * is detected and instantiated at runtime. It abstracts away
+ * all provider-specific setup, allowing the rest of the application
+ * to work with a unified adapter interface.
  *
- * Responsibilities:
- * - Detects the active provider type (e.g., IGDB, RAWG).
- * - Instantiates the appropriate adapter implementations.
- * - Injects provider-specific configuration (API URL, client ID, API key, etc.).
+ * ### Responsibilities
+ * - Detect the active provider type (`igdb`, `rawg`, etc.).
+ * - Instantiate the appropriate adapter implementations.
+ * - Inject provider-specific credentials and configuration values.
+ * - Throw explicit errors for unsupported or misconfigured providers.
  *
- * Notes:
- * - Extensible: new providers can be integrated by adding additional `case` branches.
- * - Throws {@link UnauthorizedError} if the configured provider is unsupported.
+ * ### Notes
+ * - Easily extensible: new providers can be integrated by adding
+ *   new `case` branches.
+ * - Serves as the main entry point for infrastructure-level composition.
  *
- * @param {ProviderConfig} providerConfig
- *   The configuration object describing the active external provider.
+ * @param providerConfig - The configuration object describing the active provider.
  *   Its shape depends on the selected provider type:
  *   - **IGDB**: `{ type: 'igdb'; apiUrl: string; tokenUrl: string; clientId: string; clientSecret: string }`
  *   - **RAWG**: `{ type: 'rawg'; apiUrl: string; apiKey: string }`
  *
- * @returns {AdaptersMap} The fully initialized set of provider adapters.
+ * @returns The fully initialized {@link AdaptersMap} for the active provider.
+ *
+ * @throws {UnauthorizedError} If the configured provider type is unsupported.
+ *
+ * @see {@link ProviderConfig}
+ * @see {@link assembleAdapters}
+ * @see {@link igdbAuthAdapter}
+ * @see {@link rawgAuthAdapter}
  */
 export const resolveAdapters = (providerConfig: ProviderConfig): AdaptersMap => {
   switch (providerConfig.type) {

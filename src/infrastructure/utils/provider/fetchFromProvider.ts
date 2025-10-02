@@ -1,13 +1,20 @@
 import { BadRequestError, TrackPlayError } from '@trackplay/core/errors'
 import { ProviderToken } from '@trackplay/core/schemas'
 import { apiFetch } from '@trackplay/core/utils'
-import { AuthPort } from '@trackplay/core/ports'
+import { ProviderTokenPort } from '@trackplay/core/ports'
 
 /**
- * Options for executing a query against an external game provider.
+ * **Execute Query Options**
  *
- * Defines the parameters required to perform a network request, including
- * provider-specific identifiers and optional HTTP method overrides.
+ * Defines the parameters required to perform a low-level network request
+ * against a configured external game provider.
+ *
+ * This configuration structure allows both query-based (IGDB) and
+ * REST-style (RAWG) requests by specifying endpoints, query payloads,
+ * and optional authentication metadata.
+ *
+ * @see {@link fetchFromProvider}
+ * @see {@link sendProviderRequest}
  */
 interface ExecuteQueryOptions {
   apiUrl: string
@@ -19,21 +26,23 @@ interface ExecuteQueryOptions {
 }
 
 /**
- * Builds HTTP headers required for provider communication.
+ * **Build Provider Headers**
  *
- * Responsibilities:
- * - Sets a default `Content-Type` header (`text/plain`).
- * - Injects `Client-ID` when required (e.g., for IGDB).
- * - Applies the correct `Authorization` format depending on the {@link ProviderToken} type:
+ * Constructs a consistent set of HTTP headers for provider communication.
+ *
+ * ### Responsibilities
+ * - Add a default `Content-Type: text/plain` header.
+ * - Inject the `Client-ID` header when required (e.g., for IGDB).
+ * - Format the `Authorization` header depending on the {@link ProviderToken} type:
  *   - `bearer` → `Authorization: Bearer <token>`
  *   - `apiKey` → `Authorization: <token>`
  *
- * Notes:
+ * ### Notes
  * - This helper is **provider-agnostic** and may be reused across adapters.
  *
- * @param providerToken - Authentication token obtained via {@link AuthPort}.
- * @param clientId - Optional client identifier required by certain providers.
- * @returns Record of HTTP headers ready for request execution.
+ * @param providerToken - The authentication token obtained via {@link ProviderTokenPort}.
+ * @param clientId - Optional client identifier for providers like IGDB.
+ * @returns A record of ready-to-use HTTP headers for request execution.
  */
 const buildProviderHeaders = (providerToken: ProviderToken, clientId?: string): Record<string, string> => {
   const headers: Record<string, string> = { 'Content-Type': 'text/plain' }
@@ -46,26 +55,30 @@ const buildProviderHeaders = (providerToken: ProviderToken, clientId?: string): 
 }
 
 /**
+ * **Send Provider Request**
+ *
  * Executes a low-level HTTP request against a configured provider.
+ * This function performs the actual network call once a valid
+ * {@link ProviderToken} has been obtained.
  *
- * Responsibilities:
- * - Sends authenticated requests using either `POST` (for query-based APIs like IGDB)
- *   or `GET` (for RESTful APIs like RAWG).
- * - Builds consistent headers through {@link buildProviderHeaders}.
- * - Returns unvalidated raw data, delegating schema validation to adapters.
- * - Wraps and normalizes low-level network or provider errors into
- *   domain-level {@link BadRequestError} or {@link TrackPlayError}.
+ * ### Responsibilities
+ * - Send authenticated requests using either `POST` (for query-based APIs like IGDB)
+ *   or `GET` (for REST-based APIs like RAWG).
+ * - Build standardized headers through {@link buildProviderHeaders}.
+ * - Return raw, unvalidated provider data to be processed by higher layers.
+ * - Normalize and wrap low-level network or provider errors.
  *
- * Notes:
- * - This function assumes a valid {@link ProviderToken} has been obtained.
- * - For higher-level usage, prefer {@link executeQuery}, which handles token acquisition.
+ * ### Notes
+ * - This is a **low-level helper** and is not intended to be called directly.
+ *   Use {@link fetchFromProvider} for token management and orchestration.
+ * - Schema validation should be handled by adapters or use cases.
  *
- * @param providerToken - Authentication token used for the request.
- * @param options - Query execution parameters defined in {@link ExecuteQueryOptions}.
- * @returns Promise resolving to the raw, unvalidated provider response.
+ * @param providerToken - The token used to authenticate the request.
+ * @param options - The execution parameters defined in {@link ExecuteQueryOptions}.
+ * @returns A promise resolving to the raw, unvalidated provider response.
  *
- * @throws {BadRequestError} - Thrown on network or unexpected response issues.
- * @throws {TrackPlayError} - Thrown if the provider response matches a known error structure.
+ * @throws {BadRequestError} If the HTTP request fails or uses an unsupported method.
+ * @throws {TrackPlayError} If the provider returns a structured application error.
  */
 const sendProviderRequest = async (providerToken: ProviderToken, options: ExecuteQueryOptions): Promise<unknown> => {
   const { apiUrl, endpoint, query, errorPath, clientId, method = 'POST' } = options
@@ -91,24 +104,37 @@ const sendProviderRequest = async (providerToken: ProviderToken, options: Execut
 }
 
 /**
- * Executes an **authenticated** query against a game provider.
+ * **Fetch From Provider**
  *
- * Responsibilities:
- * - Requests a valid {@link ProviderToken} from the given {@link AuthPort}.
- * - Delegates request execution to {@link execute}.
- * - Unifies access patterns for both query-based (IGDB) and REST-based (RAWG) providers.
+ * High-level utility for executing **authenticated** queries
+ * against external game providers.
  *
- * Notes:
- * - This is the **preferred entry point** for adapters making external API calls.
- * - Adapters should remain focused on validation and mapping, leaving
- *   authentication and network details to this utility.
+ * This function defines **how** adapters perform authenticated
+ * requests in a provider-agnostic manner, unifying IGDB (query-based)
+ * and RAWG (REST-based) communication patterns.
  *
- * @param authPort - Implementation of {@link AuthPort} used to request provider tokens.
- * @param options - Configuration object defining endpoint, query, and provider parameters.
- * @returns Promise resolving to the raw provider response, ready for validation.
+ * ### Responsibilities
+ * - Request a valid {@link ProviderToken} via the injected {@link ProviderTokenPort}.
+ * - Delegate the actual HTTP execution to {@link sendProviderRequest}.
+ * - Expose a single, provider-agnostic interface for adapter-level requests.
  *
+ * ### Notes
+ * - This is the **preferred entry point** for infrastructure adapters.
+ * - Adapters should focus on validation and mapping, delegating
+ *   authentication and network concerns to this helper.
+ *
+ * @param authPort - Implementation of {@link ProviderTokenPort} used to obtain provider tokens.
+ * @param options - Configuration object defining endpoint, query, and HTTP method.
+ * @returns A promise resolving to the raw provider response (unvalidated).
+ *
+ * @throws {BadRequestError} If network issues occur or provider response is malformed.
+ * @throws {TrackPlayError} If the provider explicitly returns an error structure.
+ *
+ * @see {@link sendProviderRequest}
+ * @see {@link ProviderTokenPort}
+ * @see {@link ProviderToken}
  */
-export const fetchFromProvider = async (authPort: AuthPort, options: ExecuteQueryOptions): Promise<unknown> => {
+export const fetchFromProvider = async (authPort: ProviderTokenPort, options: ExecuteQueryOptions): Promise<unknown> => {
   const providerToken = await authPort.requestToken()
   return await sendProviderRequest(providerToken, options)
 }

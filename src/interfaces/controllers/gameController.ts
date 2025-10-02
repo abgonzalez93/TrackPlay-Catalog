@@ -8,32 +8,56 @@ import { Request, Response } from 'express'
 const path = getTranslationPath(import.meta.url)
 
 /**
- * Game Controller
+ * **Game Controller**
  *
- * Express controller responsible for handling HTTP routes related to games.
- * It serves as the entry point for game-related requests, delegating execution
- * to the {@link GameUseCase} and formatting results as HTTP JSON responses.
+ * Express-level HTTP adapter responsible for managing routes related
+ * to game data (search and retrieval).
  *
- * Responsibilities:
- * - Map incoming HTTP requests to use case calls.
- * - Validate incoming request parameters and query data.
- * - Return standardized HTTP responses with appropriate status codes.
+ * This controller defines **how** incoming HTTP requests are mapped
+ * to application-level operations in the {@link GameUseCase}, and
+ * **what** responses are returned to clients.
  *
- * Notes:
- * - This controller does not implement business logic; it only handles request/response orchestration.
+ * ### Responsibilities
+ * - Handle `/games` HTTP routes (search and get-by-ID operations).
+ * - Validate request parameters and query filters.
+ * - Delegate execution to the {@link GameUseCase}.
+ * - Serialize results into standardized JSON responses.
+ * - Apply appropriate HTTP status codes.
  *
+ * ### Notes
+ * - This controller is **purely infrastructural** — it contains no
+ *   domain or business logic.
+ * - Validation errors are raised using {@link BadRequestError}.
+ * - Missing entities trigger {@link NotFoundError}.
+ * - A global error middleware is expected to format and handle exceptions.
+ *
+ * @param gameUseCase - The {@link GameUseCase} instance providing game operations.
+ * @returns An object exposing route handlers for game endpoints.
+ *
+ * @see {@link GameUseCase}
+ * @see {@link GameFiltersSchema}
+ * @see {@link IdSchema}
  */
 export const gameController = (gameUseCase: GameUseCase) => {
   /**
-   * GET /games/search
+   * **GET /games/search**
    *
-   * Searches for games using query string filters.
+   * Searches for games based on query string filters.
    *
-   * @param req - Express request object containing query parameters.
-   *   - Validated against {@link GameFiltersSchema}.
-   * @param res - Express response object used to send JSON output.
-   * @returns 200 OK with a JSON array of matching games.
-   * @throws BadRequestError - If filters are invalid.
+   * ### Flow
+   * 1. Validates the incoming query parameters using {@link GameFiltersSchema}.
+   * 2. Delegates to {@link GameUseCase.searchGames}.
+   * 3. Returns a JSON array of games matching the provided filters.
+   *
+   * ### Notes
+   * - Returns an empty array if no games match the filters.
+   * - Throws a `BadRequestError` if the query is invalid.
+   *
+   * @param req - Express request containing the query parameters.
+   * @param res - Express response used to return the JSON result.
+   *
+   * @returns Sends `200 OK` with an array of matching game entities.
+   * @throws {BadRequestError} If the filters are invalid.
    */
   const search = async (req: Request, res: Response): Promise<void> => {
     const filters = validateSchema(GameFiltersSchema, req.query, `${path}.invalid_filters`)
@@ -42,16 +66,25 @@ export const gameController = (gameUseCase: GameUseCase) => {
   }
 
   /**
-   * GET /games/:id
+   * **GET /games/:id**
    *
-   * Retrieves a single game by its unique identifier.
+   * Retrieves a single game entity by its unique identifier.
    *
-   * @param req - Express request object containing the `id` parameter.
-   *   - Validated against {@link IdSchema}.
-   * @param res - Express response object used to send JSON output.
-   * @returns 200 OK with the game object.
-   * @throws NotFoundError - If no game is found for the provided ID.
-   * @throws BadRequestError - If the ID format is invalid.
+   * ### Flow
+   * 1. Validates the `id` parameter using {@link IdSchema}.
+   * 2. Calls {@link GameUseCase.getGameById}.
+   * 3. Returns the retrieved game entity in JSON format.
+   *
+   * ### Notes
+   * - Throws a `NotFoundError` if no game exists for the given ID.
+   * - Throws a `BadRequestError` if the ID format is invalid.
+   *
+   * @param req - Express request containing the `id` route parameter.
+   * @param res - Express response used to send the JSON output.
+   *
+   * @returns Sends `200 OK` with the retrieved {@link Game} object.
+   * @throws {NotFoundError} If the game is not found.
+   * @throws {BadRequestError} If the `id` parameter is invalid.
    */
   const getById = async (req: Request, res: Response): Promise<void> => {
     const id = validateSchema(IdSchema, req.params.id, `${path}.invalid_id`)

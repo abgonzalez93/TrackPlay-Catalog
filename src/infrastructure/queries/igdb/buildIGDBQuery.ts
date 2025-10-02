@@ -1,46 +1,64 @@
 import { IGDBGameFilters } from '@schemas/index'
 import { IGDB } from '@constants/index'
 
+/**
+ * Extended set of IGDB query builder options.
+ *
+ * Merges normalized {@link IGDBGameFilters} with optional low-level `where` clauses,
+ * allowing adapters to inject both structured filters and raw IGQL conditions.
+ */
 export type BuildQueryOptions = IGDBGameFilters & {
+  /** Optional raw `where` condition string that overrides auto-generated filters. */
   where?: string
 }
 
 /**
- * Escapes double quotes in a string to ensure it does not break queries.
+ * Escapes double quotes (`"`) in a string value to ensure it does not
+ * break the IGDB query syntax.
  *
- * @param val - The input string that may contain double quotes.
- * @returns The string with all double quotes escaped.
+ * ### Example
+ * ```ts
+ * escapeDoubleQuotes('Need "for" Speed') // -> 'Need \"for\" Speed'
+ * ```
+ *
+ * @param val - Input string that may contain double quotes.
+ * @returns The escaped string safe for IGDB query inclusion.
  */
 const escapeDoubleQuotes = (val: string): string => val.replace(/"/g, '\\"')
 
 /**
- * Builds an IGDB-compatible query string from normalized filter options.
+ * **IGDB Query Builder**
  *
- * Responsibilities:
- * - Converts domain-neutral or IGDB filter fields into a query string
- *   following IGDB's query language format.
- * - Escapes user-provided values (e.g. search terms, string filters) to prevent
- *   malformed queries.
- * - Dynamically assembles `fields`, `search`, `where`, `sort`, `limit`, and
- *   `offset` clauses based on the provided filters.
+ * Generates an IGDB-compatible query string from domain-level
+ * or provider-specific filter options.
  *
- * Supported filters include:
- * - Search term (`q`)
- * - Minimum thresholds (`minRating`, `minAggregatedRating`, `minFollows`, `minHypes`)
- * - Category-based filters (`platforms`, `genres`, `themes`)
- * - Sorting (`sortBy`, `sortOrder`)
- * - Pagination (`limit`, `offset`)
- * - Advanced custom conditions (`filters`, `where`)
+ * This utility defines **how** normalized filter objects are
+ * translated into the **IGDB Query Language (IGQL)** format.
  *
- * Notes:
- * - If both `where` and normalized filters exist, the explicit `where` string
- *   takes precedence.
- * - Default `limit` is 5 and `sortOrder` is `"desc"`.
- * - Escaping is handled by {@link escapeDoubleQuotes}.
+ * ### Responsibilities
+ * - Convert normalized filter objects into structured IGQL clauses.
+ * - Escape user-provided values using {@link escapeDoubleQuotes}.
+ * - Dynamically assemble `fields`, `search`, `where`, `sort`, `limit`, and `offset` clauses.
+ * - Support both structured filters and raw `where` overrides.
  *
- * @param filters - The filtering, sorting, and pagination options
- *                  to build into an IGDB query.
- * @returns {string} A fully assembled query string compatible with the IGDB API.
+ * ### Supported Filters
+ * - **Search term** (`q`)
+ * - **Threshold filters** (`minRating`, `minAggregatedRating`, `minFollows`, `minHypes`)
+ * - **Category filters** (`platforms`, `genres`, `themes`)
+ * - **Sorting** (`sortBy`, `sortOrder`)
+ * - **Pagination** (`limit`, `offset`)
+ * - **Advanced conditions** (`filters`, `where`)
+ *
+ * ### Notes
+ * - If both `where` and normalized filters are provided, the explicit `where` string takes precedence.
+ * - Default values:
+ *   - `limit`: `5`
+ *   - `sortOrder`: `"desc"`
+ * - All string literals are escaped to prevent malformed queries.
+ * - Uses the predefined field set from {@link IGDB.GAME_FIELDS}.
+ *
+ * @param filters - The filtering, sorting, and pagination options to build into an IGDB query.
+ * @returns A fully assembled and IGQL-compliant query string.
  *
  */
 export const buildIGDBQuery = (filters: BuildQueryOptions): string => {

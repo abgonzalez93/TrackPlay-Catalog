@@ -1,7 +1,7 @@
-import { AuthPort, CategoryPort } from '@trackplay/core/ports'
+import { ProviderTokenPort, CategoryPort } from '@trackplay/core/ports'
 import { CategoryList } from '@trackplay/core/schemas'
 
-export const rawgCategoryAdapter = (_authPort: AuthPort, _apiUrl: string): CategoryPort => {
+export const rawgCategoryAdapter = (_authPort: ProviderTokenPort, _apiUrl: string): CategoryPort => {
   const getGenres = async (): Promise<CategoryList> => []
 
   const getPlatforms = async (): Promise<CategoryList> => []

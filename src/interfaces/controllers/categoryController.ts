@@ -3,32 +3,44 @@ import { CategoryUseCase } from '@useCases/index'
 import { Request, Response } from 'express'
 
 /**
- * Category Controller
+ * **Category Controller**
  *
- * Express controller responsible for handling HTTP routes related to game categories.
- * It acts as an entry point for category-related requests, delegating execution to
- * the {@link CategoryUseCase} and formatting responses into HTTP JSON payloads.
+ * Express-level HTTP adapter responsible for handling requests related
+ * to game categories (genres, platforms, themes).
  *
- * Responsibilities:
- * - Map incoming HTTP requests to application-level use case calls.
- * - Convert use case results into standardized HTTP responses.
- * - Ensure proper status codes and JSON formatting.
+ * This controller defines **how** HTTP requests are mapped to
+ * application-level operations within the {@link CategoryUseCase},
+ * and **what** responses are returned to the client.
  *
- * Notes:
- * - This controller does not contain domain or business logic; it strictly handles
- *   request/response orchestration.
+ * ### Responsibilities
+ * - Handle category-related HTTP routes.
+ * - Delegate request execution to the {@link CategoryUseCase}.
+ * - Serialize and send responses in standardized JSON format.
+ * - Apply appropriate HTTP status codes.
  *
+ * ### Notes
+ * - This controller is **purely infrastructural** — it contains no
+ *   business or domain logic.
+ * - Errors are expected to be handled by a global error middleware.
+ *
+ * @param categoryUseCase - The {@link CategoryUseCase} instance providing category operations.
+ * @returns An object exposing HTTP route handlers for categories.
+ *
+ * @see {@link CategoryUseCase}
  */
 export const categoryController = (categoryUseCase: CategoryUseCase) => {
   /**
-   * GET /categories/genres
+   * **GET /categories/genres**
    *
-   * Retrieves all available game genres as domain-neutral categories.
+   * Retrieves all available game genres as normalized category entities.
+   *
+   * ### Flow
+   * 1. Delegates the call to {@link CategoryUseCase.getGenres}.
+   * 2. Returns the resulting list as a JSON array.
    *
    * @param _req - Express request object (unused).
    * @param res - Express response object used to send JSON output.
-   *
-   * @returns 200 OK with a JSON array of genres.
+   * @returns Sends `200 OK` with an array of genre objects.
    */
   const getGenres = async (_req: Request, res: Response): Promise<void> => {
     const genres = await categoryUseCase.getGenres()
@@ -36,13 +48,17 @@ export const categoryController = (categoryUseCase: CategoryUseCase) => {
   }
 
   /**
-   * GET /categories/platforms
+   * **GET /categories/platforms**
    *
-   * Retrieves all available game platforms as domain-neutral categories.
+   * Retrieves all available game platforms as normalized category entities.
+   *
+   * ### Flow
+   * 1. Calls {@link CategoryUseCase.getPlatforms}.
+   * 2. Sends a standardized JSON response.
    *
    * @param _req - Express request object (unused).
    * @param res - Express response object used to send JSON output.
-   * @returns 200 OK with a JSON array of platforms.
+   * @returns Sends `200 OK` with an array of platform objects.
    */
   const getPlatforms = async (_req: Request, res: Response): Promise<void> => {
     const platforms = await categoryUseCase.getPlatforms()
@@ -50,13 +66,17 @@ export const categoryController = (categoryUseCase: CategoryUseCase) => {
   }
 
   /**
-   * GET /categories/themes
+   * **GET /categories/themes**
    *
-   * Retrieves all available game themes as domain-neutral categories.
+   * Retrieves all available game themes as normalized category entities.
+   *
+   * ### Flow
+   * 1. Calls {@link CategoryUseCase.getThemes}.
+   * 2. Returns a JSON payload containing the list of themes.
    *
    * @param _req - Express request object (unused).
    * @param res - Express response object used to send JSON output.
-   * @returns 200 OK with a JSON array of themes.
+   * @returns Sends `200 OK` with an array of theme objects.
    */
   const getThemes = async (_req: Request, res: Response): Promise<void> => {
     const themes = await categoryUseCase.getThemes()

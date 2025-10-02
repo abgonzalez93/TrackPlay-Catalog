@@ -5,17 +5,26 @@ const { GAME_PROVIDER, IGDB_TOKEN_URL, IGDB_API_URL, IGDB_CLIENT_ID, IGDB_CLIENT
   getEnvConfig
 
 /**
- * Provider Configuration
+ * **Provider Configuration**
  *
- * Defines available game data providers and selects the active provider
- * based on environment variables. Defaults to **IGDB** if no valid provider
- * is configured in the environment.
+ * Centralized configuration registry for all supported external game data providers.
  *
- * Responsibilities:
- * - Exposes configuration values (URLs, client credentials) for each provider.
- * - Determines the current provider dynamically at runtime.
- * - Provides a single `currentProviderConfig` object to be used throughout
- *   the infrastructure layer (e.g., adapters, clients).
+ * This module defines provider-specific credentials, URLs, and access parameters,
+ * and determines the currently active provider dynamically from environment variables.
+ * It ensures that infrastructure components (e.g., adapters, clients) can retrieve
+ * consistent and strongly typed configuration data without coupling to environment logic.
+ *
+ * ### Responsibilities
+ * - Define available provider configurations (`igdb`, `rawg`, etc.).
+ * - Resolve the active provider based on the `GAME_PROVIDER` environment variable.
+ * - Expose a typed {@link ProviderConfig} for the current provider.
+ *
+ * ### Notes
+ * - Defaults to **IGDB** if `GAME_PROVIDER` is missing or invalid.
+ * - Each provider entry includes credentials and endpoint URLs specific to its API.
+ * - This module should be imported only by infrastructure-level components.
+ *
+ * @see {@link ProviderConfig}
  */
 const providers: Record<'igdb' | 'rawg', ProviderConfig> = {
   igdb: {
@@ -32,17 +41,30 @@ const providers: Record<'igdb' | 'rawg', ProviderConfig> = {
   },
 }
 
+/**
+ * Represents the available provider keys within the {@link providers} map.
+ */
 type ProviderName = keyof typeof providers
 
 /**
- * The active provider name, resolved from the environment variable
- * `GAME_PROVIDER`. Defaults to `"igdb"` if the value is missing or invalid.
+ * **Active Provider Name**
+ *
+ * Resolves the currently active game data provider name from the `GAME_PROVIDER`
+ * environment variable. If undefined or invalid, defaults to `"igdb"`.
+ *
+ * @type {ProviderName}
+ * @default "igdb"
  */
 const currentProvider: ProviderName = GAME_PROVIDER && GAME_PROVIDER in providers ? (GAME_PROVIDER as ProviderName) : 'igdb'
 
 /**
- * The configuration object for the currently active provider.
- * Contains credentials and API endpoints required for authentication
- * and data fetching.
+ * **Current Provider Configuration**
+ *
+ * The active {@link ProviderConfig} corresponding to the selected provider.
+ * Includes authentication credentials, API URLs, and request parameters
+ * required by downstream adapters (e.g., {@link igdbAuthAdapter}).
+ *
+ * @constant
+ * @type {ProviderConfig}
  */
 export const currentProviderConfig: ProviderConfig = providers[currentProvider]

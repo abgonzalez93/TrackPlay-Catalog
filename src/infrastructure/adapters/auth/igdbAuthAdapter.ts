@@ -3,42 +3,49 @@ import { TrackPlayError, UnauthorizedError } from '@trackplay/core/errors'
 import { ProviderToken } from '@trackplay/core/schemas'
 import { toIGDBProviderToken } from '@mappers/index'
 import { IGDBTokenSchema } from '@schemas/index'
-import { AuthPort } from '@trackplay/core/ports'
+import { ProviderTokenPort } from '@trackplay/core/ports'
 
 const path = getTranslationPath(import.meta.url)
 
 /**
- * IGDB Auth Adapter
+ * **IGDB Auth Adapter**
  *
- * This adapter provides the {@link AuthPort} implementation for IGDB/Twitch,
- * using the **OAuth 2.0 Client Credentials Flow**. It requests, validates,
- * and maps access tokens into a domain-neutral {@link ProviderToken}.
+ * Infrastructure-level adapter that implements the {@link ProviderTokenPort} interface
+ * for the **IGDB/Twitch OAuth 2.0 Client Credentials Flow**.
  *
- * Responsibilities
+ * This adapter is responsible for exchanging the `clientId` and `clientSecret`
+ * credentials for a short-lived access token via Twitch’s OAuth API. It then
+ * validates and maps the response into a domain-neutral {@link ProviderToken}.
+ *
+ * ### Responsibilities
  * - Perform authentication exclusively for the `igdb` provider.
- * - Exchange `clientId` and `clientSecret` for an access token via Twitch's OAuth API.
- * - Validate the raw token response using {@link IGDBTokenSchema}.
- * - Map the validated response into a neutral {@link ProviderToken} via {@link toIGDBProviderToken}.
- * - Normalize errors by throwing {@link UnauthorizedError} or rethrowing known {@link TrackPlayError}.
+ * - Exchange client credentials for a bearer token via the Twitch OAuth endpoint.
+ * - Validate the raw API response using {@link IGDBTokenSchema}.
+ * - Transform the validated payload into a normalized {@link ProviderToken} using {@link toIGDBProviderToken}.
+ * - Standardize error handling via {@link UnauthorizedError} and {@link TrackPlayError}.
  *
- * Notes
- * - Tokens issued by IGDB/Twitch are **short-lived** and must be refreshed regularly.
- * - This adapter does **not** handle token caching or persistence (delegated to TokenService).
- * - Should only be instantiated through the container with proper configuration values.
+ * ### Notes
+ * - IGDB/Twitch tokens are **short-lived** and must be refreshed periodically.
+ * - This adapter **does not** manage caching or persistence — that logic is handled by the {@link TokenService}.
+ * - Should be instantiated through a dependency container with valid configuration values.
  *
  * @param clientId - The IGDB/Twitch client identifier.
  * @param clientSecret - The IGDB/Twitch client secret.
- * @param tokenUrl - The OAuth token endpoint URL.
- * @returns An {@link AuthPort} implementation for IGDB/Twitch authentication.
- *
+ * @param tokenUrl - The Twitch OAuth token endpoint URL.
+ * @returns An {@link ProviderTokenPort} implementation specialized for IGDB/Twitch authentication.
  */
-export const igdbAuthAdapter = (clientId: string, clientSecret: string, tokenUrl: string): AuthPort => {
+export const igdbAuthAdapter = (clientId: string, clientSecret: string, tokenUrl: string): ProviderTokenPort => {
   /**
-   * Requests a new OAuth bearer token from IGDB/Twitch.
+   * Requests a new OAuth bearer token from the Twitch OAuth API.
    *
-   * @throws {UnauthorizedError} If the response is invalid or authentication fails.
-   * @throws {TrackPlayError} If schema validation or other application-level error occurs.
-   * @returns A normalized {@link ProviderToken} containing the access token and expiration time.
+   * The method performs a POST request to the configured `tokenUrl` using the
+   * **client credentials grant**, validates the response format, and maps it
+   * to a domain-neutral {@link ProviderToken}.
+   *
+   * @returns A normalized {@link ProviderToken} containing the access token and its expiration time.
+   *
+   * @throws {UnauthorizedError} If authentication fails or the provider response is invalid.
+   * @throws {TrackPlayError} If schema validation or another application-level error occurs.
    */
   const requestToken = async (): Promise<ProviderToken> => {
     try {
