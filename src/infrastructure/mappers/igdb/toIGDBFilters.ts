@@ -3,17 +3,22 @@ import { IGDBGameFilters } from '@schemas/index'
 import { GAME } from '@trackplay/core/constants'
 
 type SortFields = (typeof GAME.GAME_SORT_FIELDS)[number]
+
 /**
- * Maps a neutral backend sort field into an IGDB-specific sort field.
+ * **mapSortField**
  *
- * Responsibilities:
- * - Converts domain-level sort keys (`title`, `releaseDate`, `rating`)
- *   into IGDB-compatible keys (`name`, `first_release_date`, `rating`).
+ * Maps a neutral backend sort field into an IGDB-specific field name.
  *
- * @param sortBy - Neutral sort field defined at the domain level.
- * @returns {IGDBGameFilters['sortBy']} The IGDB-compatible sort field,
- * or `undefined` if no mapping is available.
+ * ### Scope
+ * - Translates domain-level sort keys (e.g., `"title"`, `"releaseDate"`) into
+ *   IGDB-compatible field identifiers.
  *
+ * ### Notes
+ * - Returns `undefined` when no explicit mapping exists, allowing the adapter
+ *   to skip the sort clause.
+ *
+ * @param sortBy - Domain-level sort field name.
+ * @returns The corresponding IGDB sort field, or `undefined` if not mapped.
  */
 const mapSortField = (sortBy?: SortFields): IGDBGameFilters['sortBy'] => {
   switch (sortBy) {
@@ -29,22 +34,28 @@ const mapSortField = (sortBy?: SortFields): IGDBGameFilters['sortBy'] => {
 }
 
 /**
- * Transforms domain-neutral {@link GameFilters} into IGDB-specific filters.
+ * **toIGDBFilters**
  *
- * Responsibilities:
- * - Maps domain filter fields (`query`, `limit`, `offset`, `sortBy`, `sortOrder`, `minRating`)
- *   into their IGDB-compatible counterparts.
- * - Converts sort fields using {@link mapSortField}.
- * - Category filters (`genres`, `platforms`, `themes`) are left as `undefined`
- *   until domain-to-IGDB mappings are implemented.
+ * Transforms a domain-neutral {@link GameFilters} object into an IGDB-compatible
+ * {@link IGDBGameFilters} query configuration.
  *
- * Notes:
- * - This function isolates IGDB's query format from the rest of the application,
- *   allowing the domain to remain provider-agnostic.
+ * ### Scope
+ * - Acts as a **provider translation layer**, isolating IGDB query syntax from
+ *   domain-level logic.
+ * - Ensures that adapters interact only with normalized provider-specific formats.
  *
- * @param entity - Neutral filters defined at the domain level.
- * @returns {IGDBGameFilters} A filter object in IGDB-compatible format.
+ * ### Mapping
+ * - `query` → `q`
+ * - `sortBy` → Mapped using {@link mapSortField}
+ * - `sortOrder`, `limit`, `offset`, `minRating` → Passed through unchanged
+ * - `genres`, `platforms`, `themes` → Left `undefined` until category mapping is implemented
  *
+ * ### Notes
+ * - Keeps IGDB-specific field names hidden from higher layers.
+ * - Allows easy extension when adding new domain filters.
+ *
+ * @param entity - Domain-level filters from the application.
+ * @returns An {@link IGDBGameFilters} object compatible with IGDB queries.
  */
 export const toIGDBFilters = (entity: GameFilters): IGDBGameFilters => {
   return {
@@ -53,9 +64,7 @@ export const toIGDBFilters = (entity: GameFilters): IGDBGameFilters => {
     offset: entity.offset,
     sortBy: mapSortField(entity.sortBy),
     sortOrder: entity.sortOrder,
-
     minRating: entity.minRating,
-
     genres: undefined,
     platforms: undefined,
     themes: undefined,

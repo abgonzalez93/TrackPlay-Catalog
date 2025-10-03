@@ -1,26 +1,34 @@
 import { Game, GameFilters, GameList, Id } from '@trackplay/core/schemas'
 
 /**
- * Interface for the Game Use Case.
+ * **GameUseCase (interface)**
  *
- * Defines the application-level operations available for games.
- * Ensures provider-agnostic interaction with domain-neutral {@link Game} entities.
+ * Application-layer contract defining **what operations** are available
+ * for interacting with {@link Game} entities in a **provider-agnostic** manner.
+ *
+ * ### Scope
+ * - Declares operations for searching and retrieving games.
+ * - Guarantees that all returned entities are normalized domain objects.
+ *
+ * ### Semantics
+ * - Methods must return validated {@link Game} or {@link GameList} data.
+ * - Implementations handle provider selection, mapping, and error propagation.
  */
 export interface GameUseCase {
   /**
-   * Searches for games based on the provided filters.
+   * Searches for games matching the given criteria.
    *
-   * @param filters - Criteria used to filter the list of games.
-   * @returns A list of games matching the filters.
+   * @param filters - Domain-level filters to apply when querying games.
+   * @returns A promise resolving to a {@link GameList} of matching games.
    */
   searchGames(filters: GameFilters): Promise<GameList>
 
   /**
-   * Retrieves a game by its unique identifier.
+   * Retrieves a single game by its unique identifier.
    *
-   * @param id - Unique identifier of the game.
-   * @returns The game entity if found.
-   * @throws NotFoundError - If no game is found for the given id.
+   * @param id - The domain-level {@link Id} of the game to retrieve.
+   * @returns A promise resolving to a {@link Game} entity if found.
+   * @throws NotFoundError If no game exists for the specified identifier.
    */
   getGameById(id: Id): Promise<Game>
 }

@@ -21,11 +21,9 @@ import { IGDBGame } from '@schemas/index'
 
 export const toGame = (entity: IGDBGame): Game => {
   return {
-    ids: {
+    providerIds: {
       igdb: entity.id,
-      rawg: null,
     },
-    provider: 'igdb',
     title: entity.name ?? 'Unknown',
     slug: entity.slug ?? '',
     summary: entity.summary ?? null,

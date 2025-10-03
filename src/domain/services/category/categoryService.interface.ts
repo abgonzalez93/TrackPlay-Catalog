@@ -1,30 +1,38 @@
 import { CategoryList } from '@trackplay/core/schemas'
 
 /**
- * Interface for the Category Service.
+ * **CategoryService (interface)**
  *
- * Provides contract definitions for retrieving game-related categories
- * such as genres, platforms, and themes.
+ * Application-layer contract defining **how category data is retrieved**
+ * within the domain, independently of any external provider.
+ *
+ * ### Scope
+ * - Exposes operations for obtaining normalized category collections.
+ * - Acts as the bridge between {@link CategoryUseCase} and provider-specific ports.
+ *
+ * ### Semantics
+ * - Returns validated {@link CategoryList} objects.
+ * - Implementations are responsible for delegating data retrieval to underlying ports.
  */
 export interface CategoryService {
   /**
-   * Retrieves the list of available game genres.
+   * Retrieves all available game genres.
    *
-   * @returns A list of genre categories.
+   * @returns A promise resolving to a {@link CategoryList} of genres.
    */
   getGenres(): Promise<CategoryList>
 
   /**
-   * Retrieves the list of available game platforms.
+   * Retrieves all available game platforms.
    *
-   * @returns A list of platform categories.
+   * @returns A promise resolving to a {@link CategoryList} of platforms.
    */
   getPlatforms(): Promise<CategoryList>
 
   /**
-   * Retrieves the list of available game themes.
+   * Retrieves all available game themes.
    *
-   * @returns A list of theme categories.
+   * @returns A promise resolving to a {@link CategoryList} of themes.
    */
   getThemes(): Promise<CategoryList>
 }

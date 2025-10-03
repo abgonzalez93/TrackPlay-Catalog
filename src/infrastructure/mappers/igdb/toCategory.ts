@@ -2,15 +2,25 @@ import { Category } from '@trackplay/core/schemas'
 import { IGDBCategory } from '@schemas/index'
 
 /**
- * Maps an IGDB-specific category entity into a domain-neutral {@link Category}.
+ * **toCategory**
  *
- * This function serves as a translation layer between the infrastructure layer
- * (provider-specific schemas like {@link IGDBCategory}) and the domain layer,
- * ensuring that the application works only with normalized data structures.
+ * Maps an IGDB-specific {@link IGDBCategory} entity into a domain-neutral {@link Category}.
  *
- * @param entity - The raw IGDB category item to be transformed.
- * @returns {Category} A domain-neutral category item with normalized fields.
+ * ### Scope
+ * - Serves as a transformation layer between the infrastructure (provider) and domain layers.
+ * - Ensures consistent, provider-agnostic category representation.
  *
+ * ### Mapping
+ * - `id` → Directly copied from IGDB entity.
+ * - `name` → Defaults to `"Unknown"` if missing.
+ * - `slug` → Defaults to empty string if undefined.
+ *
+ * ### Notes
+ * - Guarantees that the resulting {@link Category} object always has defined fields.
+ * - Used by adapters such as {@link igdbCategoryAdapter} to normalize IGDB responses.
+ *
+ * @param entity - The raw IGDB category entity to transform.
+ * @returns A normalized {@link Category} entity safe for domain use.
  */
 export const toCategory = (entity: IGDBCategory): Category => {
   return {

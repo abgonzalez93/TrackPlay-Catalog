@@ -7,8 +7,11 @@ import {
   rawgGameAdapter,
 } from '@adapters/index'
 import { ProviderTokenPort, CategoryPort, GamePort } from '@trackplay/core/ports'
+import { getTranslationPath } from '@trackplay/core/utils'
 import { UnauthorizedError } from '@trackplay/core/errors'
 import { ProviderConfig } from '@schemas/index'
+
+const path = getTranslationPath(import.meta.url)
 
 /**
  * **Adapters Map**
@@ -110,6 +113,6 @@ export const resolveAdapters = (providerConfig: ProviderConfig): AdaptersMap => 
     }
 
     default:
-      throw new UnauthorizedError('catalog.infrastructure.container.unsupported_provider')
+      throw new UnauthorizedError(`${path}.unsupported_provider`)
   }
 }
