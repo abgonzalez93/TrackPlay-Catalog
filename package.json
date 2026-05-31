@@ -4,45 +4,100 @@
   "author": "Antonio Bueno Gonzalez",
   "version": "1.0.0",
   "private": true,
+  "imports": {
+    "#useCases/*": {
+      "development": "./src/application/useCases/*.ts",
+      "default": "./dist/application/useCases/*.js"
+    },
+    "#ports/*": {
+      "development": "./src/domain/ports/*.ts",
+      "default": "./dist/domain/ports/*.js"
+    },
+    "#prisma/*": {
+      "development": "./src/generated/prisma/*.ts",
+      "default": "./dist/generated/prisma/*.js"
+    },
+    "#controllers/*": {
+      "development": "./src/infrastructure/adapters/in/controllers/*.ts",
+      "default": "./dist/infrastructure/adapters/in/controllers/*.js"
+    },
+    "#routes/*": {
+      "development": "./src/infrastructure/adapters/in/routes/*.ts",
+      "default": "./dist/infrastructure/adapters/in/routes/*.js"
+    },
+    "#adapters-out/*": {
+      "development": "./src/infrastructure/adapters/out/*.ts",
+      "default": "./dist/infrastructure/adapters/out/*.js"
+    },
+    "#container/*": {
+      "development": "./src/infrastructure/container/*.ts",
+      "default": "./dist/infrastructure/container/*.js"
+    },
+    "#services/*": {
+      "development": "./src/infrastructure/services/*.ts",
+      "default": "./dist/infrastructure/services/*.js"
+    },
+    "#config/*": {
+      "development": "./src/shared/config/*.ts",
+      "default": "./dist/shared/config/*.js"
+    },
+    "#constants/*": {
+      "development": "./src/shared/constants/*.ts",
+      "default": "./dist/shared/constants/*.js"
+    },
+    "#schemas/*": {
+      "development": "./src/shared/schemas/*.ts",
+      "default": "./dist/shared/schemas/*.js"
+    },
+    "#types/*": {
+      "development": "./src/shared/types/*.ts",
+      "default": "./dist/shared/types/*.js"
+    },
+    "#igdbConstants/*": {
+      "development": "./src/shared/providers/igdb/constants/*.ts",
+      "default": "./dist/shared/providers/igdb/constants/*.js"
+    },
+    "#igdbSchemas/*": {
+      "development": "./src/shared/providers/igdb/schemas/*.ts",
+      "default": "./dist/shared/providers/igdb/schemas/*.js"
+    },
+    "#igdbTypes/*": {
+      "development": "./src/shared/providers/igdb/types/*.ts",
+      "default": "./dist/shared/providers/igdb/types/*.js"
+    }
+  },
   "scripts": {
-    "build": "tsc && tsc-alias",
-    "dev": "tsx watch --clear-screen=false -r tsconfig-paths/register src/server.ts",
-    "start": "node --enable-source-maps --no-warnings dist/server.js",
+    "build": "rm -rf dist && tsc",
+    "dev": "tsx watch --conditions=development --env-file=.env  src/server.ts",
+    "dev:native": "node --conditions=development --env-file=.env --watch --trace-warnings --experimental-strip-types src/server.ts",
     "lint": "eslint src",
-    "lint:fix": "eslint src --fix",
-    "barrelsby:generate": "barrelsby --config .barrelsby.json",
-    "madge": "madge --circular src/",
-    "update": "ncu -u -e 2 && pnpm install"
+    "prisma:generate": "NODE_OPTIONS='--conditions=development' prisma generate",
+    "prisma:migrate": "NODE_OPTIONS='--conditions=development' prisma migrate dev",
+    "prisma:reset": "NODE_OPTIONS='--conditions=development' prisma migrate reset",
+    "prisma:studio": "NODE_OPTIONS='--conditions=development' prisma studio",
+    "test": "vitest"
   },
   "dependencies": {
-    "@t3-oss/env-core": "^0.13.8",
-    "@trackplay/core": "^1.1.28",
-    "compression": "^1.8.1",
-    "cors": "^2.8.5",
-    "express": "^5.1.0",
-    "express-rate-limit": "^8.1.0",
-    "helmet": "^8.1.0",
-    "winston": "^3.18.3",
-    "zod": "^4.1.11"
+    "@prisma/client": "^7.3.0",
+    "@trackplay/catalog-domain": "link:../trackplay-catalog-domain",
+    "@trackplay/core": "link:../trackplay-core",
+    "@trackplay/runtime": "link:../trackplay-runtime",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
-    "@eslint/js": "^9.36.0",
-    "@types/compression": "^1.8.1",
-    "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
-    "@types/node": "^24.6.2",
-    "barrelsby": "^2.8.1",
-    "eslint": "^9.36.0",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.2.2",
+    "eslint": "^10.0.0",
     "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-prettier": "^5.5.4",
-    "globals": "^16.4.0",
-    "madge": "^8.0.0",
-    "prettier": "^3.6.2",
-    "tsc-alias": "^1.8.16",
-    "tsconfig-paths": "^4.2.0",
-    "tsx": "^4.20.6",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-prettier": "^5.5.5",
+    "globals": "^17.3.0",
+    "prettier": "^3.8.1",
+    "prisma": "^7.3.0",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "typescript-eslint": "^8.45.0"
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^4.0.18"
   },
-  "packageManager": "pnpm@10.18.0"
+  "packageManager": "pnpm@10.29.1"
 }

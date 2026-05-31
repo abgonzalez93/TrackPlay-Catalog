@@ -1,12 +1,12 @@
 # 🎮 TrackPlay - Catalog Service
 
-Este microservicio se encarga de interactuar con proveedores externos de información de videojuegos (IGDB, RAWG, etc.), adaptando y normalizando las respuestas a un formato neutral para ser consumido por el backend principal. Forma parte de la arquitectura distribuida de TrackPlay y expone una API HTTP sencilla y consistente.
+Este microservicio se encarga de interactuar con proveedores externos de información de videojuegos (IGDB), adaptando y normalizando las respuestas a un formato neutral para ser consumido por el backend principal. Forma parte de la arquitectura distribuida de TrackPlay y expone una API HTTP sencilla y consistente.
 
 ---
 
 ## 📌 Funcionalidad
 
-- Selección dinámica de proveedor según la variable de entorno GAME_PROVIDER (igdb, rawg).
+- Selección dinámica de proveedor según la variable de entorno GAME_PROVIDER (igdb).
 - Proxy y adaptación de peticiones a la API externa seleccionada.
 - Transformación de filtros de dominio neutro a formato específico de cada proveedor.
 - Validación de respuestas mediante Zod schemas.
@@ -19,7 +19,7 @@ Este microservicio se encarga de interactuar con proveedores externos de informa
 
 - El backend hace una petición HTTP a este microservicio.
 - El Use Case orquesta la petición y delega en el Adapter correspondiente.
-- El Adapter transforma filtros neutrales a filtros específicos del proveedor (IGDB, RAWG, etc.).
+- El Adapter transforma filtros neutrales a filtros específicos del proveedor (IGDB).
 - El Rest Client ejecuta la consulta al proveedor externo.
 - La respuesta se valida con Zod y se transforma en un formato neutral.
 - Se devuelve una respuesta limpia y consistente al backend.

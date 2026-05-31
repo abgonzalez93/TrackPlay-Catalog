@@ -1,0 +1,250 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// -----------------------------------------------------------------------------
+// Models
+// -----------------------------------------------------------------------------
+
+model Game {
+  id     Int @id @default(autoincrement())
+  igdbId Int @unique
+
+  name        String
+  slug        String  @unique
+  summary     String? @db.Text
+  storyline   String? @db.Text
+  releaseDate DateTime?
+  totalRating Float?
+
+  cover       Json?
+  screenshots Json[]
+  artworks    Json[]
+  videos      Json[]
+
+  websites           Json[]
+  externalGames      Json[]
+  ageRatings         Json[]
+  gameEngines        Json[]
+  gameType           Json?
+
+  parentGame   Json?
+  dlcs         Json[]
+  expansions   Json[]
+  remakes      Json[]
+  remasters    Json[]
+  similarGames Json[]
+
+  collection   Collection? @relation(fields: [collectionId], references: [id])
+  collectionId Int?
+
+  genres             GenreOnGame[]
+  platforms          PlatformOnGame[]
+  involvedCompanies  InvolvedCompanyOnGame[]
+  themes             ThemeOnGame[]
+  gameModes          GameModeOnGame[]
+  playerPerspectives PlayerPerspectiveOnGame[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastSyncAt DateTime @default(now())
+
+  @@index([name])
+  @@index([releaseDate])
+  @@map("games")
+}
+
+model Genre {
+  id     Int @id @default(autoincrement())
+  igdbId Int @unique
+
+  name String
+  slug String @unique
+
+  games GenreOnGame[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastSyncAt DateTime @default(now())
+
+  @@map("genres")
+}
+
+model Platform {
+  id     Int @id @default(autoincrement())
+  igdbId Int @unique
+
+  name         String
+  slug         String  @unique
+  abbreviation String?
+  logo         Json?
+
+  games PlatformOnGame[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastSyncAt DateTime @default(now())
+
+  @@map("platforms")
+}
+
+model Company {
+  id     Int @id @default(autoincrement())
+  igdbId Int @unique
+
+  name String
+  slug String @unique
+  logo Json?
+
+  involvedIn InvolvedCompanyOnGame[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastSyncAt DateTime @default(now())
+
+  @@map("companies")
+}
+
+model Collection {
+  id     Int @id @default(autoincrement())
+  igdbId Int @unique
+
+  name String
+  slug String @unique
+
+  games Game[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastSyncAt DateTime @default(now())
+
+  @@map("collections")
+}
+
+model Theme {
+  id     Int @id @default(autoincrement())
+  igdbId Int @unique
+
+  name String
+  slug String @unique
+
+  games ThemeOnGame[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastSyncAt DateTime @default(now())
+
+  @@map("themes")
+}
+
+model GameMode {
+  id     Int @id @default(autoincrement())
+  igdbId Int @unique
+
+  name String
+  slug String @unique
+
+  games GameModeOnGame[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastSyncAt DateTime @default(now())
+
+  @@map("game_modes")
+}
+
+model PlayerPerspective {
+  id     Int @id @default(autoincrement())
+  igdbId Int @unique
+
+  name String
+  slug String @unique
+
+  games PlayerPerspectiveOnGame[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  lastSyncAt DateTime @default(now())
+
+  @@map("player_perspectives")
+}
+
+// -----------------------------------------------------------------------------
+// Join Tables (Many-to-Many Relationships)
+// -----------------------------------------------------------------------------
+
+model GenreOnGame {
+  game    Game  @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId  Int
+  genre   Genre @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId Int
+
+  @@id([gameId, genreId])
+  @@index([genreId])
+  @@map("genres_on_games")
+}
+
+model PlatformOnGame {
+  game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId     Int
+  platform   Platform @relation(fields: [platformId], references: [id], onDelete: Cascade)
+  platformId Int
+
+  @@id([gameId, platformId])
+  @@index([platformId])
+  @@map("platforms_on_games")
+}
+
+model InvolvedCompanyOnGame {
+  game      Game    @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId    Int
+  company   Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  companyId Int
+
+  developer  Boolean @default(false)
+  publisher  Boolean @default(false)
+  porting    Boolean @default(false)
+  supporting Boolean @default(false)
+
+  @@id([gameId, companyId])
+  @@index([companyId])
+  @@map("involved_companies_on_games")
+}
+
+model ThemeOnGame {
+  game    Game  @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId  Int
+  theme   Theme @relation(fields: [themeId], references: [id], onDelete: Cascade)
+  themeId Int
+
+  @@id([gameId, themeId])
+  @@index([themeId])
+  @@map("themes_on_games")
+}
+
+model GameModeOnGame {
+  game       Game     @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId     Int
+  gameMode   GameMode @relation(fields: [gameModeId], references: [id], onDelete: Cascade)
+  gameModeId Int
+
+  @@id([gameId, gameModeId])
+  @@index([gameModeId])
+  @@map("game_modes_on_games")
+}
+
+model PlayerPerspectiveOnGame {
+  game                Game              @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  gameId              Int
+  playerPerspective   PlayerPerspective @relation(fields: [playerPerspectiveId], references: [id], onDelete: Cascade)
+  playerPerspectiveId Int
+
+  @@id([gameId, playerPerspectiveId])
+  @@index([playerPerspectiveId])
+  @@map("player_perspectives_on_games")
+}
